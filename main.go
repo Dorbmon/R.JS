@@ -7,6 +7,7 @@ import (
 	"os"
 	"io/ioutil"
 	"strconv"
+	"unsafe"
 )
 var JavaScript_const_var string
 func main(){
@@ -72,11 +73,60 @@ func main(){
 				error_("DATA IS NOT ENOUGH FOR fcreate")
 				os.Exit(0)
 			}
-			
-			result,err := otto.ToValue()
+			//创建文件 实际上就是以create权限打开文件
+			file_name,err := call.Argument(0).ToString()
 			if err != nil{
 				error_e(err)
 				os.Exit(0)
+			}
+			if checkFileIsExist(file_name){
+				//文件存在，返回false
+				result2,err1 := otto.ToValue(false)
+				if err1 != nil{
+					error_e(err1)
+					os.Exit(0)
+				}
+				return result2
+			}
+			_,create_err := os.OpenFile(file_name,os.O_CREATE,0)
+			if create_err != nil{
+				//文件存在，返回false
+				result2,err1 := otto.ToValue(false)
+				if err1 != nil{
+					error_e(err1)
+					os.Exit(0)
+				}
+				return result2
+			}
+			result,err := otto.ToValue(true)
+			if err != nil{
+				error_e(err)
+				os.Exit(0)
+			}
+			return result
+		})
+		js.Set("fclose",func(call otto.FunctionCall) otto.Value{
+			if !check_data(call,1){
+				error_("DATA IS NOT ENOUGH FOR fclose")
+				os.Exit(0)
+			}
+			//temp := call.Argument(0)
+			//file := (*file)(call.Argument(0))
+			var file *os.File
+			file = (*os.File)(unsafe.Pointer(&call.ArgumentList[0]))
+			err := file.Close()
+			//file = call.Argument(0).ToInteger()
+			result,err2 := otto.ToValue(false)
+			if err2 != nil{
+				error_e(err2)
+				os.Exit(0)
+			}
+			if err == nil{
+				result,err2 = otto.ToValue(true)
+				if err2 != nil{
+					error_e(err2)
+					os.Exit(0)
+				}
 			}
 			return result
 		})
@@ -109,4 +159,11 @@ func error_(message string){
 }
 func error_e(message error){
 	fmt.Print(message)
+}
+func checkFileIsExist(filename string) bool {
+	var exist = true
+	if _, err := os.Stat(filename); os.IsNotExist(err) {
+		exist = false
+	}
+	return exist
 }
