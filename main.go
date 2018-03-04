@@ -13,14 +13,26 @@ import (
 	"errors"
 	"strings"
 	//"io"
+
+	"math/rand"
+	//"math"
 )
+var opened_file_map  map[int] opened_file	//储存打开的文件
+type opened_file struct{
+	File *os.File;
+	Chmode int;
+	Is_alive bool;
+}
 var golang_path,_ = getCurrentPath()	//没有/
 var js_source_path string	//没有/
 var js_source_path_with_file_name string
 const (
-	 THE_THING_BETWING_DIR = "\\"
+		OPENED_FILE_NUMBER = 10	//初始化时给opened_file map的个数
+		OPENED_FILE_MAX = 1000	//最大打开文件数
+	 	THE_THING_BETWING_DIR = "\\"
 )
 func main(){
+		//fmt.Print(delete_interface("[sss]"))
 		file := flag.String("file","","The R.JS source file")
 		flag.Parse()
 		if *file == ""{
@@ -29,13 +41,14 @@ func main(){
 		}
 		JavaScript,read_err := ReadAll(*file)
 		if read_err != nil{
-			print("ERROR:",read_err)
+			fmt.Print("ERROR:",read_err)
 			os.Exit(0)
 		}
 		//优先在当前目录搜索该文件
 		//fmt.Print(golang_path + THE_THING_BETWING_DIR + *file)
 		//fmt.Print(golang_path)
 		//os.Exit(0)
+		opened_file_map = make(map[int]opened_file,OPENED_FILE_NUMBER)
 		if checkFileIsExist( golang_path + THE_THING_BETWING_DIR + *file){
 			js_source_path = golang_path
 			js_source_path_with_file_name = golang_path + THE_THING_BETWING_DIR + *file
@@ -88,23 +101,43 @@ func main(){
 				//是相对于JS程序的路径
 				file_name = js_source_path + THE_THING_BETWING_DIR + file_name
 			}
-			result,err := os.OpenFile(file_name,file_mode,0)
+			rand_id := rand.Intn(OPENED_FILE_MAX)
+			//fmt.Println("rand_id:",rand_id)
+			//rand_id := rand.Int()
+			//opened_file_map[rand_id].File,err = os.OpenFile(file_name,file_mode,0)
+			//temp_opened_file := opened_file{}
+			//temp_opened_file.Chmode = file_mode
+			//temp_opened_file.File,err = os.OpenFile(file_name,file_mode,0)
 			if err != nil{
-				return otto.FalseValue()
+				temp,_ := otto.ToValue(0)
+				return temp
 			}
-			defer result.Close()
+			//temp_opened_file.Is_alive = true
+			//opened_file_map[rand_id] = temp_opened_file
+			temp_address,_  := os.OpenFile(file_name,file_mode,0)
+			opened_file_map[rand_id] = opened_file{temp_address,file_mode,true}
+			/*defer func(){opened_file_map[rand_id].File.Close()
+				fmt.Print("ssClosed","err:")
+
+			}()*/
+			if _,err = opened_file_map[rand_id].File.Stat();err != nil{
+				temp,_ := otto.ToValue(0)
+				return temp
+			}
 			//int_pointer := *result
 			//dd := int64(result)
-			strPointerHex := string(fmt.Sprintf("%x",*result))
+			//strPointerHex := string(fmt.Sprintf("%x",*opened_file_map[rand_id].File))
 			//fmt.Println("length:",unsafe.Sizeof(*result))
-			strPointerHex = Substr(strPointerHex,1,len(strPointerHex))
-			strPointerHex = Substr(strPointerHex,0,len(strPointerHex) - 1)
-			fmt.Println("1:",strPointerHex)
-			fmt.Println("2",result)
+			//strPointerHex = Substr(strPointerHex,1,len(strPointerHex))
+			//strPointerHex = Substr(strPointerHex,0,len(strPointerHex) - 1)
+			//fmt.Println("1:",strPointerHex)
+			//fmt.Println("2",result)
 			//os.Exit(0)
-			data,err := otto.ToValue(strPointerHex)
-			if err != nil{
-				return otto.FalseValue()
+			data,err_c := otto.ToValue(rand_id)
+			if err_c != nil{
+				//fmt.Print("reason:",err)
+				temp,_ := otto.ToValue(0)
+				return temp
 			}
 			return data
 		})
@@ -119,19 +152,30 @@ func main(){
 			//file := (*os.File)call.Argument(0).ToString()
 			//fmt.Print("\n",unsafe.Pointer(&call.ArgumentList[0]))
 			//fmt.Print(&call.ArgumentList[0])
-			address := call.ArgumentList[0].String()
-			fmt.Println("address:",address)
-			file = (*os.File)(unsafe.Pointer(&address))
+
+			address,err := call.ArgumentList[0].ToInteger()
+			if err != nil{
+				//fmt.Print("error:",err)
+				return otto.FalseValue()
+			}
+			file = opened_file_map[int(address)].File
+			//fmt.Println("address:",address)
+			//file = (*os.File)(unsafe.Pointer(&address))
+			//_,err = file.Stat()
+			//stat,_ := opened_file_map[int(address)].File.Stat()
+			//fmt.Print("stat",stat)
 			//gob.Register()
-			fmt.Print("file:",file)
+			//fmt.Print("file:",file)
 			//os.Exit(0)
-			data := []byte(call.Argument(1).String())
-			temp := *file
-			_,err := temp.Write(data)
+			data := []byte(delete_interface(call.Argument(1).String()))
+			//fmt.Print(file.Stat())
+			//data := []byte()
+			//temp := *file
+			//_,err := temp.Write(data)
+			_,err = file.Write(data)
 			if err != nil{
 				return otto.FalseValue()
 			}
-			fmt.Print("Wrote.")
 			return otto.TrueValue()
 		})
 
@@ -247,11 +291,21 @@ func main(){
 			}
 			return otto.Value{}
 		})
+		js.Set("exit",func(call otto.FunctionCall)otto.Value{
+			if !check_data(call,1){
+				error_("DATA IS NOT ENOUGH FOR include")
+				os.Exit(0)
+			}
+			temp,_ := call.Argument(0).ToInteger()
+			os.Exit(int(temp))
+			return otto.Value{}
+		})
 		_,err := js.Run(string(JavaScript))
+
 		if err != nil{
 			error_e(err)
 		}
-		//fmt.Print(value)
+		//fmt.Print(JavaScript)
 }
 func init_Java_Script_Const(vm *otto.Otto){
 	/*		文件权限相关底层常量		*/
@@ -267,6 +321,11 @@ func init_Java_Script_Const(vm *otto.Otto){
 	//JavaScript_const_var += "var IO_ReadOnly = " + string(os.O_RDONLY)
 	//JavaScript_const_var += "var IO_Create = " + string(os.O_CREATE)
 	//JavaScript_const_var += "\n"
+}
+func delete_interface (data string)string{
+	data = Substr(data,1, len(data))
+	data = Substr(data,0,len(data)-1)
+	return data
 }
 func ReadAll(filePth string) ([]byte, error) {
 	f, err := os.Open(filePth)
