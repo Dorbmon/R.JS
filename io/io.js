@@ -41,3 +41,15 @@ function Print(){
 function Exit(code){
     exit(code);
 }
+function TCP_SERVER(){
+    this.TCP_LISTENER_ID = 0;
+    this.Onconnection = function(){
+
+    };
+    this.SetOnConnectFunc = function(func){
+        this.OnConnection = func;
+    };
+    this.Listener = function(ip,port){
+        IO_Start_TCP_Server(ip,port);
+    };
+}

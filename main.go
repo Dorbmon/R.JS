@@ -13,10 +13,32 @@ import (
 	"errors"
 	"strings"
 	//"io"
-
+	"./go_pkg/pkg_network"
 	"math/rand"
 	//"math"
 )
+/*
+                   _ooOoo_
+                  o8888888o
+                  88" . "88
+                  (| -_- |)
+                  O\  =  /O
+               ____/`---'\____
+             .'  \\|     |//  `.
+            /  \\|||  :  |||//  \
+           /  _||||| -:- |||||-  \
+           |   | \\\  -  /// |   |
+           | \_|  ''\---/''  |   |
+           \  .-\__  `-`  ___/-. /
+         ___`. .'  /--.--\  `. . __
+      ."" '<  `.___\_<|>_/___.'  >'"".
+     | | :  `- \`.;`\ _ /`;.`/ - ` : | |
+     \  \ `-.   \_ __\ /__ _/   .-` /  /
+======`-.____`-.___\_____/___.-`____.-'======
+                   `=---='
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         佛祖保佑       永无BUG
+*/
 var opened_file_map  map[int] opened_file	//储存打开的文件
 type opened_file struct{
 	File *os.File;
@@ -26,14 +48,14 @@ type opened_file struct{
 var golang_path,_ = getCurrentPath()	//没有/
 var js_source_path string	//没有/
 var js_source_path_with_file_name string
-const (
-		OPENED_FILE_NUMBER = 10	//初始化时给opened_file map的个数
-		OPENED_FILE_MAX = 1000	//最大打开文件数
-	 	THE_THING_BETWING_DIR = "\\"
-)
+		var OPENED_FILE_NUMBER = 10	//初始化时给opened_file map的个数
+		var OPENED_FILE_MAX int	//最大打开文件数
+	 	var THE_THING_BETWING_DIR = "\\"
 func main(){
 		//fmt.Print(delete_interface("[sss]"))
 		file := flag.String("file","","The R.JS source file")
+		/*		获取部分限定参数		*/
+		OPENED_FILE_MAX = *flag.Int("opened_file_max",1000,"The MAX number of OPENING FILES")
 		flag.Parse()
 		if *file == ""{
 			fmt.Print("ERROR FILE NAME")
@@ -44,6 +66,7 @@ func main(){
 			fmt.Print("ERROR:",read_err)
 			os.Exit(0)
 		}
+		//include_network.
 		//优先在当前目录搜索该文件
 		//fmt.Print(golang_path + THE_THING_BETWING_DIR + *file)
 		//fmt.Print(golang_path)
@@ -59,6 +82,11 @@ func main(){
 		//fmt.Print(js_source_path)
 		//os.Exit(0)
 		js := otto.New()
+		/*	init Including Setting	*/
+		pkg_network.Swap_Data_From_Main(js)
+		//include_network.
+
+
 		init_Java_Script_Const(js)
 		/*		IO部分		*/
 		js.Set("output", func(call otto.FunctionCall) otto.Value {
@@ -101,7 +129,11 @@ func main(){
 				//是相对于JS程序的路径
 				file_name = js_source_path + THE_THING_BETWING_DIR + file_name
 			}
+			again_rand:
 			rand_id := rand.Intn(OPENED_FILE_MAX)
+			if(opened_file_map[rand_id].Is_alive){
+				goto again_rand
+			}
 			//fmt.Println("rand_id:",rand_id)
 			//rand_id := rand.Int()
 			//opened_file_map[rand_id].File,err = os.OpenFile(file_name,file_mode,0)
@@ -297,7 +329,43 @@ func main(){
 				os.Exit(0)
 			}
 			temp,_ := call.Argument(0).ToInteger()
+			fmt.Print(call.CallerLocation())
 			os.Exit(int(temp))
+			return otto.Value{}
+		})
+		js.Set("IO_Start_TCP_Server",func (call otto.FunctionCall)otto.Value{	//TCP监听IP 监听端口 客户连接回调函数 收到数据回调函数 错误回调函数
+			if !check_data(call,5){
+				error_("DATA IS NOT ENOUGH FOR IO_Start_TCP_Server")
+				os.Exit(0)
+			}
+			TCP_IP,err := call.Argument(0).ToString()
+			if err != nil{
+				error_("ERROR TCP_IP FOR IO_Start_TCP_Server")
+				os.Exit(0)
+			}
+			Port,err := call.Argument(1).ToInteger()
+			if err != nil{
+				error_("ERROR TCP_IP FOR IO_Start_TCP_Server")
+				os.Exit(0)
+			}
+			//fmt.Print(TCP_IP)
+			var temp_recall_message pkg_network.TCP_LISTENER
+			temp_recall_message.On_Connect_func,err = call.Argument(2).ToString()
+			if err != nil{
+				error_("ERROR At IO_Start_TCP_Server")
+				os.Exit(0)
+			}
+			temp_recall_message.On_Data_func,err = call.Argument(3).ToString()
+			if err != nil{
+				error_("ERROR At IO_Start_TCP_Server")
+				os.Exit(0)
+			}
+			temp_recall_message.On_ERROR,err = call.Argument(4).ToString()
+			if err != nil{
+				error_("ERROR At IO_Start_TCP_Server")
+				os.Exit(0)
+			}
+			pkg_network.Start_Listen(TCP_IP,int(Port),temp_recall_message)
 			return otto.Value{}
 		})
 		_,err := js.Run(string(JavaScript))
