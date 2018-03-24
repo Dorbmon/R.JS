@@ -3,13 +3,16 @@ package pkg_network
 import(
 	"fmt"
 	"net"
-	"math/rand"
+	//"math/rand"
 	otto "github.com/robertkrimen/otto"
+	"../pkg_stack"
 )
 //var TCP_LISTENER_MAP = make(map[int]TCP_LISTENER)
-var TCP_LISTENER_MAP map[int]TCP_LISTENER
+//var TCP_LISTENER_MAP map[int]TCP_LISTENER
+
 var js *otto.Otto
 var listener_number = 0
+var listen_list pkg_stack.Stack
 var error_ = func(err error){
 	fmt.Print(err)
 }
@@ -18,8 +21,10 @@ const (
 )
 func Swap_Data_From_Main(js_engine *otto.Otto){
 	*js = *js_engine
-	TCP_LISTENER_MAP = make(map[int]TCP_LISTENER)
+	//TCP_LISTENER_MAP = make(map[int]TCP_LISTENER)
 	//error_ = error_func.(func())
+	//初始化队列
+	listen_list = pkg_stack.New()
 }
 type TCP_LISTENER struct {
 	listener *net.Listener
@@ -43,34 +48,34 @@ type TCP_CONN struct{
 func Start_Listen(IP string,Port int,CallBackData TCP_LISTENER){
 	if listener_number == MAX_TCP_LISTENER{
 		//达到监听上限
-		js.Call(CallBackData.On_ERROR,001)
+		js.Call(CallBackData.On_ERROR,0011)
 		return
 	}
 	var err error
 	//TCP_LISTENER_MAP[listener_num].On_Connect_func = ""
-	again_rand:
-	listener_num := rand.Intn(MAX_TCP_LISTENER)
-	if TCP_LISTENER_MAP[listener_num].has{
-		//已被占用
-		goto again_rand
-	}
-	TCP_LISTENER_MAP[listener_num] = CallBackData
-	*TCP_LISTENER_MAP[listener_num].listener,err = net.Listen("tcp",IP + ":" + string(Port))
-	(TCP_LISTENER_MAP[listener_num]).has = true
+	temp_tcp_listener := TCP_LISTENER{}
+	temp_tcp_listener = CallBackData
+	*(temp_tcp_listener.listener),err = net.Listen("tcp",IP + ":" + string(Port))
+	temp_listener_number := listen_list.Push(temp_tcp_listener)
+	listener_number++
 	if err != nil{
 		error_(err)
 		//return err
 	}
 	//设置监听相关
 	//*TCP_LISTENER_MAP[listener_num].
-	go func(listener_num int,listener TCP_LISTENER){
+	go func(listener_num int){
+		temp,_ := listen_list.Get(listener_num)
+		listener := temp.(TCP_LISTENER)
 		for
 		{
-			conn, err := (*TCP_LISTENER_MAP[listener_num].listener).Accept()
+			//conn, err := (*TCP_LISTENER_MAP[listener_num].listener).Accept()
+			conn,err := (*listener.listener).Accept()
 			if err != nil {
 				error_(err)
 				//投递错误信息
-				js.Call(TCP_LISTENER_MAP[listener_num].On_ERROR,err)
+				//js.Call(TCP_LISTENER_MAP[listener_num].On_ERROR,err)
+				js.Call(listener.On_ERROR,err)
 				continue
 			}
 			//投递连接
@@ -95,5 +100,5 @@ func Start_Listen(IP string,Port int,CallBackData TCP_LISTENER){
 			//
 
 		}
-	}(listener_num,TCP_LISTENER_MAP[listener_num])
+	}(temp_listener_number)
 }

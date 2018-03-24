@@ -50,6 +50,6 @@ function TCP_SERVER(){
         this.OnConnection = func;
     };
     this.Listener = function(ip,port){
-        IO_Start_TCP_Server(ip,port);
+        IO_Start_TCP_Server(ip,port,this.Onconnection);
     };
 }
