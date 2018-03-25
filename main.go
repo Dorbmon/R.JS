@@ -13,9 +13,14 @@ import (
 	"errors"
 	"strings"
 	//"io"
-	"./go_pkg/pkg_network"
+
 	"math/rand"
 	//"math"
+)
+//此处为RJS库
+import (
+	"./go_pkg/pkg_network"
+	pkg_stack "./go_pkg/pkg_stack"
 )
 /*
                    _ooOoo_
@@ -51,6 +56,7 @@ var js_source_path_with_file_name string
 		var OPENED_FILE_NUMBER = 10	//初始化时给opened_file map的个数
 		var OPENED_FILE_MAX int	//最大打开文件数
 	 	var THE_THING_BETWING_DIR = "\\"
+	 	var js *otto.Otto
 func main(){
 		//fmt.Print(delete_interface("[sss]"))
 		file := flag.String("file","","The R.JS source file")
@@ -66,6 +72,7 @@ func main(){
 			fmt.Print("ERROR:",read_err)
 			os.Exit(0)
 		}
+
 		//include_network.
 		//优先在当前目录搜索该文件
 		//fmt.Print(golang_path + THE_THING_BETWING_DIR + *file)
@@ -81,11 +88,11 @@ func main(){
 		}
 		//fmt.Print(js_source_path)
 		//os.Exit(0)
-		js := otto.New()
+		js = otto.New()
+		load_outside_progarm()	//加载库
 		/*	init Including Setting	*/
 		pkg_network.Swap_Data_From_Main(js)
 		//include_network.
-
 
 		init_Java_Script_Const(js)
 		/*		IO部分		*/
@@ -487,4 +494,8 @@ func Substr(str string, start int, length int) string {
 	}
 
 	return string(rs[start:end])
+}
+func load_outside_progarm(){
+	//加载编译时包含的库
+	pkg_stack.Set_JS_Stack(js)//栈库
 }

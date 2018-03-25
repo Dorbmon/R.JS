@@ -20,7 +20,7 @@ const (
 	MAX_TCP_LISTENER = 100
 )
 func Swap_Data_From_Main(js_engine *otto.Otto){
-	*js = *js_engine
+	js = js_engine
 	//TCP_LISTENER_MAP = make(map[int]TCP_LISTENER)
 	//error_ = error_func.(func())
 	//初始化队列
@@ -90,7 +90,7 @@ func Start_Listen(IP string,Port int,CallBackData TCP_LISTENER){
 					buffer := make([]byte, 1024)
 					n, err := conn.Read(buffer)
 					if err != nil {
-						return
+						js.Call(listener.On_ERROR,err)
 					}
 					data := string(buffer[:n]) //创建一个变量来输出缓冲区
 					//投递数据

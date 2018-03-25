@@ -2,7 +2,7 @@ function R_File(){
     this.File_id = 0;
     this.File_name = "";
     this.Close = function(){
-        //fclose(this.File_id);
+        fclose(this.File_id);
         //output(this.File_id);
         return;
     };
