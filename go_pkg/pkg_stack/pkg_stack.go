@@ -17,11 +17,6 @@ func New()Stack{
 	temp.data = make([]interface{},1)
 	return temp
 }
-func New_Stack()Stack{
-	var temp Stack
-	temp.data = make([]interface{},1)
-	return temp
-}
 func (this *Stack)Pop()(interface{}){
 	this.now--
 	if this.now == -1{

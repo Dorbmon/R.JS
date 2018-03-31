@@ -20,7 +20,9 @@ import (
 //此处为RJS库
 import (
 	"./go_pkg/pkg_network"
+	"./go_pkg/pkg_os"
 	pkg_stack "./go_pkg/pkg_stack"
+	"log"
 )
 /*
                    _ooOoo_
@@ -375,7 +377,7 @@ func main(){
 			pkg_network.Start_Listen(TCP_IP,int(Port),temp_recall_message)
 			return otto.Value{}
 		})
-		_,err := js.Run(string(JavaScript))
+		_,err = js.Run(string(JavaScript))
 
 		if err != nil{
 			error_e(err)
@@ -470,16 +472,13 @@ func Substr(str string, start int, length int) string {
 	rs := []rune(str)
 	rl := len(rs)
 	end := 0
-
 	if start < 0 {
 		start = rl - 1 + start
 	}
 	end = start + length
-
 	if start > end {
 		start, end = end, start
 	}
-
 	if start < 0 {
 		start = 0
 	}
@@ -492,10 +491,10 @@ func Substr(str string, start int, length int) string {
 	if end > rl {
 		end = rl
 	}
-
 	return string(rs[start:end])
 }
 func load_outside_progarm(){
 	//加载编译时包含的库
 	pkg_stack.Set_JS_Stack(js)//栈库
+	pkg_os.Swap_data(js)
 }
