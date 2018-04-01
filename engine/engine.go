@@ -22,6 +22,7 @@ import (
 	"../go_pkg/pkg_network"
 	"../go_pkg/pkg_os"
 	"../go_pkg/pkg_stack"
+	"../go_pkg/pkg_load"
 	//"log"
 )
 /*
@@ -215,7 +216,6 @@ func Run(file *string){
 			}
 			return otto.TrueValue()
 		})
-
 		js.Set("IO_fcreate",func(call otto.FunctionCall) otto.Value{
 			if !check_data(call,1){
 				error_("DATA IS NOT ENOUGH FOR fcreate")
@@ -373,7 +373,7 @@ func Run(file *string){
 			pkg_network.Start_Listen(TCP_IP,int(Port),temp_recall_message)
 			return otto.Value{}
 		})
-		_,err = js.Run(string(JavaScript))
+		_,err := js.Run(string(JavaScript))
 
 		if err != nil{
 			error_e(err)
@@ -493,4 +493,5 @@ func load_outside_progarm(){
 	//加载编译时包含的库
 	pkg_stack.Set_JS_Stack(js)//栈库
 	pkg_os.Swap_data(js)
+	pkg_load.SwapJS(js)
 }
