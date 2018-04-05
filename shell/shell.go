@@ -15,10 +15,10 @@ import (
 var now_user string
 var now_path string
 var path_between = "/"	// 有可能为/
-var shell_path =
+//var shell_path =
 func main(){
 	//初始化环境
-	fmt.Println("SYSTEM:",runtime.GOARCH)
+	fmt.Println("CPU:",runtime.GOARCH)
 	fmt.Println("RSHELL builded on :",build_about.GetBuildTime())
 	fmt.Println("By Ruixue.")
 
@@ -66,6 +66,7 @@ func cd(call otto.FunctionCall)otto.Value{
 		result,_ := otto.ToValue(dir_name + " is not a dir name.Please check")
 		return result
 	}
+	return otto.Value{}
 }
 func getCurrentPath() (string, error) {	//没有/
 	file, err := exec.LookPath(os.Args[0])

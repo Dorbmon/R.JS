@@ -387,7 +387,7 @@ func init_Java_Script_Const(vm *otto.Otto){
 	vm.Set("IO_ReadOnly",os.O_RDONLY)
 	vm.Set("IO_Create",os.O_CREATE)
 	vm.Set("IO_Append",os.O_APPEND)	//追加方式
-
+	vm.Set("RJS_CONFIG_STRIT_MODE",false)	//严格模式下内存错误等会导致程序退出
 
 	return
 	//JavaScript_const_var += "var IO_ReadWrite = " + string(os.O_RDWR)

@@ -10,7 +10,7 @@ func New()List{
 	temp.List = make([]interface{},1)
 	return temp
 }
-func(this *List) Append(data interface{}){
+func(this *List)Append(data interface{}){
 	this.List[this.now] = data
 	this.now ++
 	return

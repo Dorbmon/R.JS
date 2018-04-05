@@ -6,10 +6,20 @@ import(
 	//"math/rand"
 	otto "github.com/robertkrimen/otto"
 	"../pkg_stack"
+	"net/url"
+	"net/http"
+	"io/ioutil"
+	"log"
+	"os"
 )
 //var TCP_LISTENER_MAP = make(map[int]TCP_LISTENER)
 //var TCP_LISTENER_MAP map[int]TCP_LISTENER
-
+type AJAX_LIST struct{
+	url *url.URL
+	value url.Values
+	has bool
+}
+var AJAX_OBJECT_LIST map[string]*AJAX_LIST
 var js *otto.Otto
 var listener_number = 0
 var listen_list pkg_stack.Stack
@@ -20,11 +30,46 @@ const (
 	MAX_TCP_LISTENER = 100
 )
 func Swap_Data_From_Main(js_engine *otto.Otto){
+	AJAX_OBJECT_LIST = make(map[string]*AJAX_LIST)
+	//url,err := url.Parse("xx")
 	js = js_engine
 	//TCP_LISTENER_MAP = make(map[int]TCP_LISTENER)
 	//error_ = error_func.(func())
 	//初始化队列
 	listen_list = pkg_stack.New()
+	js.Set("NETWORK_AJAX",func(call otto.FunctionCall)otto.Value{	//参数1为对方地址，二为协议 GET或POST。必须大写。返回该对象名称，参数3为唯一名称
+		//新建一个AJAX实例
+		if call.Argument(2).IsNull(){
+			fmt.Print("Data is not enough for NETWORK_AJAX on:",call.CallerLocation())
+			OnStrictMode(js)
+			return otto.FalseValue()
+		}
+		obj_name,err := call.Argument(2).ToString()
+		if err != nil{
+			//类型错误
+			fmt.Print("The type of the name of NETWORK_AJAX is wrong on:",call.CallerLocation())
+			OnStrictMode(js)
+			return otto.FalseValue()
+		}
+		if AJAX_OBJECT_LIST[obj_name].has{	//已经存在该名称
+			return otto.FalseValue()
+		}
+		urlArgument,err := call.Argument(0).ToString()
+		if err != nil{
+			//类型错误
+			fmt.Print("The type of the url of NETWORK_AJAX is wrong on:",call.CallerLocation())
+			OnStrictMode(js)
+			return otto.FalseValue()
+		}
+		AJAX_OBJECT_LIST[obj_name].url,err = url.Parse(urlArgument)
+		if err != nil{
+			fmt.Print("ERROR URL on:",call.CallerLocation())
+			OnStrictMode(js)
+			return otto.FalseValue()
+		}
+		value,_ := otto.ToValue(obj_name)
+		return value
+	})
 }
 type TCP_LISTENER struct {
 	listener *net.Listener
@@ -101,4 +146,20 @@ func Start_Listen(IP string,Port int,CallBackData TCP_LISTENER){
 
 		}
 	}(temp_listener_number)
+}
+func OnStrictMode(vm *otto.Otto){
+	IfStrictMode,err := vm.Get("RJS_CONFIG_STRIT_MODE")
+	if err != nil{
+		fmt.Print("ERRO CONFIG.RJS_CONFIG_STRIT_MODE")
+		os.Exit(0)
+	}
+	confident,err :=  IfStrictMode.ToBoolean()
+	if err != nil{
+		fmt.Print("ERRO CONFIG.RJS_CONFIG_STRIT_MODE")
+		os.Exit(0)
+	}
+	if confident{
+		os.Exit(0)
+	}
+	return
 }

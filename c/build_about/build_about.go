@@ -7,7 +7,6 @@ const char* build_time(void)
     return psz_build_time;
 }
  */
-
 import "C"
 
 func GetBuildTime()string{
