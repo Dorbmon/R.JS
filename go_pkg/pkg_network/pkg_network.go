@@ -8,8 +8,8 @@ import(
 	"../pkg_stack"
 	"net/url"
 	"net/http"
-	"io/ioutil"
-	"log"
+	//"io/ioutil"
+	//"log"
 	"os"
 )
 //var TCP_LISTENER_MAP = make(map[int]TCP_LISTENER)
@@ -18,6 +18,7 @@ type AJAX_LIST struct{
 	url *url.URL
 	value url.Values
 	has bool
+	OnErrorCallBackFuntion otto.Context
 }
 var AJAX_OBJECT_LIST map[string]*AJAX_LIST
 var js *otto.Otto
@@ -67,8 +68,80 @@ func Swap_Data_From_Main(js_engine *otto.Otto){
 			OnStrictMode(js)
 			return otto.FalseValue()
 		}
+		AJAX_OBJECT_LIST[obj_name].value = AJAX_OBJECT_LIST[obj_name].url.Query()
 		value,_ := otto.ToValue(obj_name)
 		return value
+	})
+	js.Set("NET_AJAX_ON_ERROR_FUNCTION",func(call otto.FunctionCall)otto.Value{//参数1为AJAX名称。参数2为函数 非名称
+		if call.Argument(1).IsNull(){
+			fmt.Print("Data is not enough for NETWORK_AJAX_SET on:",call.CallerLocation())
+			OnStrictMode(js)
+			return otto.FalseValue()
+		}
+		ajaxName := call.Argument(0).String()
+		if !AJAX_OBJECT_LIST[ajaxName].has{
+			fmt.Print("ERROR ajaxName:\"" + ajaxName +"\" on:",call.CallerLocation())
+			OnStrictMode(js)
+			return otto.FalseValue()
+		}
+		OnErrorCallBackFunction := call.Argument(1)
+		if !OnErrorCallBackFunction.IsFunction(){
+			fmt.Print(OnErrorCallBackFunction," is not a Function on:",call.CallerLocation()," Please Check it.")
+			OnStrictMode(js)
+			return otto.FalseValue()
+		}
+		return otto.TrueValue()
+	})
+	js.Set("NETWORK_AJAX_SET",func(call otto.FunctionCall)otto.Value{//参数1为AJAX名称。参数2为参数名称，参数3为参数值
+		if call.Argument(2).IsNull(){
+			fmt.Print("Data is not enough for NETWORK_AJAX_SET on:",call.CallerLocation())
+			OnStrictMode(js)
+			return otto.FalseValue()
+		}
+		ajaxName := call.Argument(0).String()
+		if !AJAX_OBJECT_LIST[ajaxName].has{
+			fmt.Print("ERROR ajaxName:\"" + ajaxName +"\" on:",call.CallerLocation())
+			OnStrictMode(js)
+			return otto.FalseValue()
+		}
+		name := call.Argument(1).String()
+		value := call.Argument(2).String()
+		AJAX_OBJECT_LIST[ajaxName].value.Set(name,value)
+		return otto.TrueValue()
+	})
+	js.Set("NETWORK_AJAX_SEND",func(call otto.FunctionCall)otto.Value{	//参数1为AJAX名称，参数2为是否为异步
+		if call.Argument(1).IsNull(){
+			fmt.Print("Data is not enough for NETWORK_AJAX_SEND on:",call.CallerLocation())
+			OnStrictMode(js)
+			return otto.FalseValue()
+		}
+		ajaxName := call.Argument(0).String()
+		ifAsynchronous,err := call.Argument(1).ToBoolean()
+		if err != nil{
+			fmt.Print("ERROR TYPE OF asynchronous for NETWORK_AJAX_SEND on:",call.CallerLocation())
+			OnStrictMode(js)
+			return otto.FalseValue()
+		}
+		if !AJAX_OBJECT_LIST[ajaxName].has{
+			fmt.Print("ERROR ajaxName:\"" + ajaxName +"\" on:",call.CallerLocation())
+			OnStrictMode(js)
+			return otto.FalseValue()
+		}
+		//解析信息
+		AJAX_OBJECT_LIST[ajaxName].url.RawQuery = AJAX_OBJECT_LIST[ajaxName].value.Encode()
+		//res,err := http.Get(AJAX_OBJECT_LIST[ajaxName].url.String())
+
+		if ifAsynchronous{
+			//异步
+			go func(engine *otto.Otto){
+				_,err := http.Get(AJAX_OBJECT_LIST[ajaxName].url.String())
+				//请求完成
+				if err != nil{
+
+				}
+			}(js)
+		}
+		return otto.TrueValue()
 	})
 }
 type TCP_LISTENER struct {
@@ -143,7 +216,6 @@ func Start_Listen(IP string,Port int,CallBackData TCP_LISTENER){
 				}
 			}(conn,&listener)
 			//
-
 		}
 	}(temp_listener_number)
 }

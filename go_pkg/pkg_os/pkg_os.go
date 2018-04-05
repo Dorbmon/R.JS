@@ -7,7 +7,7 @@ import (
 var js *otto.Otto
 var exec_stack = pkg_stack.New()
 func Swap_data(js_engine *otto.Otto){
-	*js = *js_engine
+	js = js_engine
 	js.Set("OS_COMMAND",func(call otto.FunctionCall)otto.Value{
 		//
 		return otto.Value{}

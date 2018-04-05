@@ -3,7 +3,7 @@ import(
 	"../engine"
 	"os"
 	"flag"
-	"io"
+	//"io"
 	"fmt"
 
 )
@@ -17,5 +17,6 @@ func main(){
 		fmt.Print("ERROR FILE NAME")
 		os.Exit(0)
 	}
+	engine.Run(file)
 	//engine.OneLineRun()
 }

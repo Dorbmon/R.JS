@@ -95,11 +95,18 @@ func Run(file *string){
 
 		init_Java_Script_Const(js)
 		/*		IO部分		*/
+		js.Set("call",func(call otto.FunctionCall){
+			//call.Argument(0).Call()
+			//sjs.Eval(call.Argument(0))
+			_,err := js.Call(call.Argument(0).String(),nil)
+			fmt.Print(err)
+		})
 		js.Set("output", func(call otto.FunctionCall) otto.Value {
+			//js.Call(call.Argument(0).String(),"")
 			n := 0
 			for {
 				value := call.Argument(n)
-				if value.String() == "undefined"{
+				if !value.IsDefined(){
 					break
 				}
 				n++
