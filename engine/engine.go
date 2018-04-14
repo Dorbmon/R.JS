@@ -53,6 +53,7 @@ type opened_file struct{
 	Chmode int;
 	Is_alive bool;
 }
+var Golang_path,_ = getCurrentPath()	//没有/
 var golang_path,_ = getCurrentPath()	//没有/
 var js_source_path string	//没有/
 var js_source_path_with_file_name string
@@ -67,6 +68,7 @@ func GetJs()*otto.Otto{
 func OneLineRun(line string)(value otto.Value,err error){
 	return js.Run(line)
 }
+
 func Run(file *string){
 		JavaScript,read_err := ReadAll(*file)
 		if read_err != nil{
@@ -88,298 +90,7 @@ func Run(file *string){
 		}
 		//fmt.Print(js_source_path)
 		//os.Exit(0)
-		load_outside_progarm()	//加载库
-		/*	init Including Setting	*/
-		pkg_network.Swap_Data_From_Main(js)
-		//include_network.
 
-		init_Java_Script_Const(js)
-		/*		IO部分		*/
-		js.Set("call",func(call otto.FunctionCall){
-			//call.Argument(0).Call()
-			//sjs.Eval(call.Argument(0))
-			_,err := js.Call(call.Argument(0).String(),nil)
-			fmt.Print(err)
-		})
-		js.Set("output", func(call otto.FunctionCall) otto.Value {
-			//js.Call(call.Argument(0).String(),"")
-			n := 0
-			for {
-				value := call.Argument(n)
-				if !value.IsDefined(){
-					break
-				}
-				n++
-				fmt.Print(value)
-			}
-			//return otto.Value{temp,"output"}
-			return otto.Value{}
-			//return otto.Value{}
-		})
-		js.Set("IO_fopen",func(call otto.FunctionCall) otto.Value{
-			if !check_data(call,2){
-				error_("ERROR DATA FOR fopen")
-				os.Exit(0)
-			}
-			//打开一个文件并且返回文件号
-			//优先在JS程序目录中寻找
-			file_name := call.Argument(0).String()
-			//temp,err := call.Argument(1).ToString()
-
-			//file_mode,err := strconv.Atoi(temp)
-			//fmt.Println("1:",call.Argument(1))
-			temp,err := call.Argument(1).ToInteger()
-			if err != nil {
-				//error_ (string(temp) + " is wrong")
-				//os.Exit(0)
-				return otto.FalseValue()
-			}
-			//fmt.Println("temp:",temp)
-			file_mode := int(temp)
-			//temp,err := call.Argument(1).ToInteger()
-			//fmt.Println(js_source_path + THE_THING_BETWING_DIR + file_name)
-			if checkFileIsExist(js_source_path + THE_THING_BETWING_DIR + file_name){
-				//是相对于JS程序的路径
-				file_name = js_source_path + THE_THING_BETWING_DIR + file_name
-			}
-			again_rand:
-			rand_id := rand.Intn(OPENED_FILE_MAX)
-			if(opened_file_map[rand_id].Is_alive){
-				goto again_rand
-			}
-			//fmt.Println("rand_id:",rand_id)
-			//rand_id := rand.Int()
-			//opened_file_map[rand_id].File,err = os.OpenFile(file_name,file_mode,0)
-			//temp_opened_file := opened_file{}
-			//temp_opened_file.Chmode = file_mode
-			//temp_opened_file.File,err = os.OpenFile(file_name,file_mode,0)
-			if err != nil{
-				temp,_ := otto.ToValue(0)
-				return temp
-			}
-			//temp_opened_file.Is_alive = true
-			//opened_file_map[rand_id] = temp_opened_file
-			temp_address,_  := os.OpenFile(file_name,file_mode,0)
-			opened_file_map[rand_id] = opened_file{temp_address,file_mode,true}
-			/*defer func(){opened_file_map[rand_id].File.Close()
-				fmt.Print("ssClosed","err:")
-
-			}()*/
-			if _,err = opened_file_map[rand_id].File.Stat();err != nil{
-				temp,_ := otto.ToValue(0)
-				return temp
-			}
-			//int_pointer := *result
-			//dd := int64(result)
-			//strPointerHex := string(fmt.Sprintf("%x",*opened_file_map[rand_id].File))
-			//fmt.Println("length:",unsafe.Sizeof(*result))
-			//strPointerHex = Substr(strPointerHex,1,len(strPointerHex))
-			//strPointerHex = Substr(strPointerHex,0,len(strPointerHex) - 1)
-			//fmt.Println("1:",strPointerHex)
-			//fmt.Println("2",result)
-			//os.Exit(0)
-			data,err_c := otto.ToValue(rand_id)
-			if err_c != nil{
-				//fmt.Print("reason:",err)
-				temp,_ := otto.ToValue(0)
-				return temp
-			}
-			return data
-		})
-		js.Set("IO_write",func(call otto.FunctionCall) otto.Value{
-			if !check_data_(call,2){
-				error_("DATA IS NOT ENOUGH FOR IO_write")
-				os.Exit(0)
-			}
-			var file *os.File
-			//file = (*os.File)(unsafe.Pointer(&call.ArgumentList[0]))
-			//file := (*os.File)(unsafe.Pointer(&call.ArgumentList[0]))
-			//file := (*os.File)call.Argument(0).ToString()
-			//fmt.Print("\n",unsafe.Pointer(&call.ArgumentList[0]))
-			//fmt.Print(&call.ArgumentList[0])
-
-			address,err := call.ArgumentList[0].ToInteger()
-			if err != nil{
-				//fmt.Print("error:",err)
-				return otto.FalseValue()
-			}
-			file = opened_file_map[int(address)].File
-			//fmt.Println("address:",address)
-			//file = (*os.File)(unsafe.Pointer(&address))
-			//_,err = file.Stat()
-			//stat,_ := opened_file_map[int(address)].File.Stat()
-			//fmt.Print("stat",stat)
-			//gob.Register()
-			//fmt.Print("file:",file)
-			//os.Exit(0)
-			data := []byte(delete_interface(call.Argument(1).String()))
-			//fmt.Print(file.Stat())
-			//data := []byte()
-			//temp := *file
-			//_,err := temp.Write(data)
-			_,err = file.Write(data)
-			if err != nil{
-				return otto.FalseValue()
-			}
-			return otto.TrueValue()
-		})
-		js.Set("IO_fcreate",func(call otto.FunctionCall) otto.Value{
-			if !check_data(call,1){
-				error_("DATA IS NOT ENOUGH FOR fcreate")
-				os.Exit(0)
-			}
-			//创建文件 实际上就是以create权限打开文件
-			file_name,err := call.Argument(0).ToString()
-			if err != nil{
-				error_e(err)
-				os.Exit(0)
-			}
-			if checkFileIsExist(file_name){
-				//文件存在，返回false
-				result2,err1 := otto.ToValue(false)
-				if err1 != nil{
-					error_e(err1)
-					os.Exit(0)
-				}
-				return result2
-			}
-			_,create_err := os.OpenFile(file_name,os.O_CREATE,0)
-			if create_err != nil{
-				//文件存在，返回false
-				result2,err1 := otto.ToValue(false)
-				if err1 != nil{
-					error_e(err1)
-					os.Exit(0)
-				}
-				return result2
-			}
-			result,err := otto.ToValue(true)
-			if err != nil{
-				error_e(err)
-				os.Exit(0)
-			}
-			return result
-		})
-		js.Set("IO_fclose",func(call otto.FunctionCall) otto.Value{
-			if !check_data(call,1){
-				error_("DATA IS NOT ENOUGH FOR fclose")
-				os.Exit(0)
-			}
-			//temp := call.Argument(0)
-			//file := (*file)(call.Argument(0))
-			var file *os.File
-			file = (*os.File)(unsafe.Pointer(&call.ArgumentList[0]))
-			err := file.Close()
-			//file = call.Argument(0).ToInteger()
-			result,err2 := otto.ToValue(false)
-			if err2 != nil{
-				error_e(err2)
-				os.Exit(0)
-			}
-			if err == nil{
-				result,err2 = otto.ToValue(true)
-				if err2 != nil{
-					error_e(err2)
-					os.Exit(0)
-				}
-			}
-			return result
-		})
-
-		/*		源代码处理部分		*/
-		js.Set("include",func(call otto.FunctionCall) otto.Value{
-			if !check_data(call,1){
-				error_("DATA IS NOT ENOUGH FOR include")
-				os.Exit(0)
-			}
-			n := 0
-			for {
-				value := call.Argument(n)
-				if value.String() == "undefined"{
-					break
-				}
-				n++
-				//fmt.Print(value)
-				//读取文件
-				Code,read_err := ReadAll(*file)
-				if read_err != nil{
-					print("ERROR:",read_err)
-					os.Exit(0)
-				}
-				js.Run(Code)
-			}
-			return otto.Value{}
-		})
-		js.Set("include_c",func(call otto.FunctionCall) otto.Value{
-			//从系统目录下包含
-			if !check_data(call,1){
-				error_("DATA IS NOT ENOUGH FOR include")
-				os.Exit(0)
-			}
-			n := 0
-			for {
-				value := call.Argument(n)
-				if value.String() == "undefined"{
-					break
-				}
-				n++
-				//fmt.Print(value)
-				//读取文件
-				SourceName := value.String()
-				Code,read_err := ReadAll(getCurrentDirectory() + THE_THING_BETWING_DIR + SourceName + THE_THING_BETWING_DIR + SourceName + ".js")
-				if read_err != nil{
-					error_e(read_err)
-					os.Exit(0)
-				}
-				js.Run(Code)
-			}
-			return otto.Value{}
-		})
-		js.Set("exit",func(call otto.FunctionCall)otto.Value{
-			if !check_data(call,1){
-				error_("DATA IS NOT ENOUGH FOR include")
-				os.Exit(0)
-			}
-			temp,_ := call.Argument(0).ToInteger()
-			fmt.Print(call.CallerLocation())
-			os.Exit(int(temp))
-			return otto.Value{}
-		})
-		js.Set("IO_Start_TCP_Server",func (call otto.FunctionCall)otto.Value{	//TCP监听IP 监听端口 客户连接回调函数 收到数据回调函数 错误回调函数
-			if !check_data(call,5){
-				error_("DATA IS NOT ENOUGH FOR IO_Start_TCP_Server")
-				os.Exit(0)
-			}
-			TCP_IP,err := call.Argument(0).ToString()
-			if err != nil{
-				error_("ERROR TCP_IP FOR IO_Start_TCP_Server")
-				os.Exit(0)
-			}
-			Port,err := call.Argument(1).ToInteger()
-			if err != nil{
-				error_("ERROR TCP_IP FOR IO_Start_TCP_Server")
-				os.Exit(0)
-			}
-			//fmt.Print(TCP_IP)
-			var temp_recall_message pkg_network.TCP_LISTENER
-			temp_recall_message.On_Connect_func,err = call.Argument(2).ToString()
-			if err != nil{
-				error_("ERROR At IO_Start_TCP_Server")
-				os.Exit(0)
-			}
-			temp_recall_message.On_Data_func,err = call.Argument(3).ToString()
-			if err != nil{
-				error_("ERROR At IO_Start_TCP_Server")
-				os.Exit(0)
-			}
-			temp_recall_message.On_ERROR,err = call.Argument(4).ToString()
-			if err != nil{
-				error_("ERROR At IO_Start_TCP_Server")
-				os.Exit(0)
-			}
-			pkg_network.Start_Listen(TCP_IP,int(Port),temp_recall_message)
-			return otto.Value{}
-		})
 		_,err := js.Run(string(JavaScript))
 
 		if err != nil{
@@ -496,9 +207,358 @@ func Substr(str string, start int, length int) string {
 	}
 	return string(rs[start:end])
 }
-func load_outside_progarm(){
+func load_outside_progarm(js *otto.Otto,this *RJSEngine){
 	//加载编译时包含的库
-	pkg_stack.Set_JS_Stack(js)//栈库
+
+	//pkg_stack.Set_JS_Stack(js)//栈库
 	pkg_os.Swap_data(js)
-	pkg_load.SwapJS(js)
+	//pkg_load.SwapJS(js)
+	this.Load_.SwapJS(js)
+	this.Stack_.SetJS(js)
+}
+type RJSEngine struct{
+	Js *otto.Otto
+	//环境变量
+	VMRootPath string
+	js_source_path string	//没有/
+	js_source_path_with_file_name string
+	OPENED_FILE_NUMBER int	//初始化时给opened_file map的个数
+	OPENED_FILE_MAX int	//最大打开文件数
+	THE_THING_BETWING_DIR string
+	OnSandMode bool
+	Realjs_source_path string //没有/
+	Realjs_source_path_with_file_name string
+	//下列为库
+	Stack_ pkg_stack.JSStack
+	Load_ pkg_load.JSLoad
+}
+func (this *RJSEngine)Init(){
+	this.Js = otto.New()
+	this.OPENED_FILE_MAX = 10	//默认为10
+	this.THE_THING_BETWING_DIR = "\\"
+	js := this.Js
+	load_outside_progarm(js,this)	//加载库
+	/*	init Including Setting	*/
+	pkg_network.Swap_Data_From_Main(js)
+	//include_network.
+
+	init_Java_Script_Const(js)
+	/*		IO部分		*/
+	js.Set("call",func(call otto.FunctionCall){
+		//call.Argument(0).Call()
+		//sjs.Eval(call.Argument(0))
+		_,err := js.Call(call.Argument(0).String(),nil)
+		fmt.Print(err)
+	})
+	js.Set("output", func(call otto.FunctionCall) otto.Value {
+		//js.Call(call.Argument(0).String(),"")
+		n := 0
+		for {
+			value := call.Argument(n)
+			if !value.IsDefined(){
+				break
+			}
+			n++
+			fmt.Print(value)
+		}
+		//return otto.Value{temp,"output"}
+		return otto.Value{}
+		//return otto.Value{}
+	})
+	js.Set("IO_fopen",func(call otto.FunctionCall) otto.Value{
+		if !check_data(call,2){
+			error_("ERROR DATA FOR fopen")
+			os.Exit(0)
+		}
+		//打开一个文件并且返回文件号
+		//优先在JS程序目录中寻找
+		file_name := call.Argument(0).String()
+		//temp,err := call.Argument(1).ToString()
+
+		//file_mode,err := strconv.Atoi(temp)
+		//fmt.Println("1:",call.Argument(1))
+		temp,err := call.Argument(1).ToInteger()
+		if err != nil {
+			//error_ (string(temp) + " is wrong")
+			//os.Exit(0)
+			return otto.FalseValue()
+		}
+		//fmt.Println("temp:",temp)
+		file_mode := int(temp)
+		//temp,err := call.Argument(1).ToInteger()
+		//fmt.Println(js_source_path + THE_THING_BETWING_DIR + file_name)
+		if checkFileIsExist(js_source_path + THE_THING_BETWING_DIR + file_name){
+			//是相对于JS程序的路径
+			file_name = js_source_path + THE_THING_BETWING_DIR + file_name
+		}
+	again_rand:
+		rand_id := rand.Intn(OPENED_FILE_MAX)
+		if(opened_file_map[rand_id].Is_alive){
+			goto again_rand
+		}
+		//fmt.Println("rand_id:",rand_id)
+		//rand_id := rand.Int()
+		//opened_file_map[rand_id].File,err = os.OpenFile(file_name,file_mode,0)
+		//temp_opened_file := opened_file{}
+		//temp_opened_file.Chmode = file_mode
+		//temp_opened_file.File,err = os.OpenFile(file_name,file_mode,0)
+		if err != nil{
+			temp,_ := otto.ToValue(0)
+			return temp
+		}
+		//temp_opened_file.Is_alive = true
+		//opened_file_map[rand_id] = temp_opened_file
+		temp_address,_  := os.OpenFile(file_name,file_mode,0)
+		opened_file_map[rand_id] = opened_file{temp_address,file_mode,true}
+		/*defer func(){opened_file_map[rand_id].File.Close()
+			fmt.Print("ssClosed","err:")
+
+		}()*/
+		if _,err = opened_file_map[rand_id].File.Stat();err != nil{
+			temp,_ := otto.ToValue(0)
+			return temp
+		}
+		//int_pointer := *result
+		//dd := int64(result)
+		//strPointerHex := string(fmt.Sprintf("%x",*opened_file_map[rand_id].File))
+		//fmt.Println("length:",unsafe.Sizeof(*result))
+		//strPointerHex = Substr(strPointerHex,1,len(strPointerHex))
+		//strPointerHex = Substr(strPointerHex,0,len(strPointerHex) - 1)
+		//fmt.Println("1:",strPointerHex)
+		//fmt.Println("2",result)
+		//os.Exit(0)
+		data,err_c := otto.ToValue(rand_id)
+		if err_c != nil{
+			//fmt.Print("reason:",err)
+			temp,_ := otto.ToValue(0)
+			return temp
+		}
+		return data
+	})
+	js.Set("IO_write",func(call otto.FunctionCall) otto.Value{
+		if !check_data_(call,2){
+			error_("DATA IS NOT ENOUGH FOR IO_write")
+			os.Exit(0)
+		}
+		var file *os.File
+		//file = (*os.File)(unsafe.Pointer(&call.ArgumentList[0]))
+		//file := (*os.File)(unsafe.Pointer(&call.ArgumentList[0]))
+		//file := (*os.File)call.Argument(0).ToString()
+		//fmt.Print("\n",unsafe.Pointer(&call.ArgumentList[0]))
+		//fmt.Print(&call.ArgumentList[0])
+
+		address,err := call.ArgumentList[0].ToInteger()
+		if err != nil{
+			//fmt.Print("error:",err)
+			return otto.FalseValue()
+		}
+		file = opened_file_map[int(address)].File
+		//fmt.Println("address:",address)
+		//file = (*os.File)(unsafe.Pointer(&address))
+		//_,err = file.Stat()
+		//stat,_ := opened_file_map[int(address)].File.Stat()
+		//fmt.Print("stat",stat)
+		//gob.Register()
+		//fmt.Print("file:",file)
+		//os.Exit(0)
+		data := []byte(delete_interface(call.Argument(1).String()))
+		//fmt.Print(file.Stat())
+		//data := []byte()
+		//temp := *file
+		//_,err := temp.Write(data)
+		_,err = file.Write(data)
+		if err != nil{
+			return otto.FalseValue()
+		}
+		return otto.TrueValue()
+	})
+	js.Set("IO_fcreate",func(call otto.FunctionCall) otto.Value{
+		if !check_data(call,1){
+			error_("DATA IS NOT ENOUGH FOR fcreate")
+			os.Exit(0)
+		}
+		//创建文件 实际上就是以create权限打开文件
+		file_name,err := call.Argument(0).ToString()
+		if err != nil{
+			error_e(err)
+			os.Exit(0)
+		}
+		if checkFileIsExist(file_name){
+			//文件存在，返回false
+			result2,err1 := otto.ToValue(false)
+			if err1 != nil{
+				error_e(err1)
+				os.Exit(0)
+			}
+			return result2
+		}
+		_,create_err := os.OpenFile(file_name,os.O_CREATE,0)
+		if create_err != nil{
+			//文件存在，返回false
+			result2,err1 := otto.ToValue(false)
+			if err1 != nil{
+				error_e(err1)
+				os.Exit(0)
+			}
+			return result2
+		}
+		result,err := otto.ToValue(true)
+		if err != nil{
+			error_e(err)
+			os.Exit(0)
+		}
+		return result
+	})
+	js.Set("IO_fclose",func(call otto.FunctionCall) otto.Value{
+		if !check_data(call,1){
+			error_("DATA IS NOT ENOUGH FOR fclose")
+			os.Exit(0)
+		}
+		//temp := call.Argument(0)
+		//file := (*file)(call.Argument(0))
+		var file *os.File
+		file = (*os.File)(unsafe.Pointer(&call.ArgumentList[0]))
+		err := file.Close()
+		//file = call.Argument(0).ToInteger()
+		result,err2 := otto.ToValue(false)
+		if err2 != nil{
+			error_e(err2)
+			os.Exit(0)
+		}
+		if err == nil{
+			result,err2 = otto.ToValue(true)
+			if err2 != nil{
+				error_e(err2)
+				os.Exit(0)
+			}
+		}
+		return result
+	})
+
+	/*		源代码处理部分		*/
+	js.Set("include",func(call otto.FunctionCall) otto.Value{
+		if !check_data(call,1){
+			error_("DATA IS NOT ENOUGH FOR include on:" + call.CallerLocation())
+			os.Exit(0)
+		}
+		n := 0
+		for {
+			value := call.Argument(n)
+			if value.String() == "undefined"{
+				break
+			}
+			n++
+			//fmt.Print(value)
+			//读取文件
+			//Code,read_err := ReadAll(*file)
+			Code,read_err := ReadAll(value.String())
+			if read_err != nil{
+				print("ERROR:",read_err)
+				os.Exit(0)
+			}
+			js.Run(Code)
+		}
+		return otto.Value{}
+	})
+	js.Set("include_c",func(call otto.FunctionCall) otto.Value{
+		//从系统目录下包含
+		if !check_data(call,1){
+			error_("DATA IS NOT ENOUGH FOR include")
+			os.Exit(0)
+		}
+		n := 0
+		for {
+			value := call.Argument(n)
+			if value.String() == "undefined"{
+				break
+			}
+			n++
+			//fmt.Print(value)
+			//读取文件
+			SourceName := value.String()
+			Code,read_err := ReadAll(getCurrentDirectory() + THE_THING_BETWING_DIR + SourceName + THE_THING_BETWING_DIR + SourceName + ".js")
+			if read_err != nil{
+				error_e(read_err)
+				os.Exit(0)
+			}
+			js.Run(Code)
+		}
+		return otto.Value{}
+	})
+	js.Set("exit",func(call otto.FunctionCall)otto.Value{
+		if !check_data(call,1){
+			error_("DATA IS NOT ENOUGH FOR include")
+			os.Exit(0)
+		}
+		temp,_ := call.Argument(0).ToInteger()
+		fmt.Print(call.CallerLocation())
+		os.Exit(int(temp))
+		return otto.Value{}
+	})
+	js.Set("IO_Start_TCP_Server",func (call otto.FunctionCall)otto.Value{	//TCP监听IP 监听端口 客户连接回调函数 收到数据回调函数 错误回调函数
+		if !check_data(call,5){
+			error_("DATA IS NOT ENOUGH FOR IO_Start_TCP_Server")
+			os.Exit(0)
+		}
+		TCP_IP,err := call.Argument(0).ToString()
+		if err != nil{
+			error_("ERROR TCP_IP FOR IO_Start_TCP_Server")
+			os.Exit(0)
+		}
+		Port,err := call.Argument(1).ToInteger()
+		if err != nil{
+			error_("ERROR TCP_IP FOR IO_Start_TCP_Server")
+			os.Exit(0)
+		}
+		//fmt.Print(TCP_IP)
+		var temp_recall_message pkg_network.TCP_LISTENER
+		temp_recall_message.On_Connect_func,err = call.Argument(2).ToString()
+		if err != nil{
+			error_("ERROR At IO_Start_TCP_Server")
+			os.Exit(0)
+		}
+		temp_recall_message.On_Data_func,err = call.Argument(3).ToString()
+		if err != nil{
+			error_("ERROR At IO_Start_TCP_Server")
+			os.Exit(0)
+		}
+		temp_recall_message.On_ERROR,err = call.Argument(4).ToString()
+		if err != nil{
+			error_("ERROR At IO_Start_TCP_Server")
+			os.Exit(0)
+		}
+		pkg_network.Start_Listen(TCP_IP,int(Port),temp_recall_message)
+		return otto.Value{}
+	})
+	return
+}
+func (this *RJSEngine)SetsandBoxMode(status bool,vmName string)(string,error){	//是否启用沙盒模式。如果使用沙盒模式，任何操作不会在物理机上生效，如果关闭沙盒操作，之前的操作也不会生效
+	//建立虚拟目录系统.
+
+	if status{	//开启
+		os.MkdirAll(golang_path + this.THE_THING_BETWING_DIR + "RJSVM",0777)	//创建虚拟根目录
+		//创建一个虚拟系统
+		err := os.Mkdir(golang_path + this.THE_THING_BETWING_DIR + "RJSVM" + this.THE_THING_BETWING_DIR + vmName,0777)
+		if err != nil{
+			return "",errors.New("ERROR When create VM root path.")
+		}
+		//模拟环境	设置初始根目录
+		this.VMRootPath = golang_path + THE_THING_BETWING_DIR + "RJSVM" + THE_THING_BETWING_DIR + vmName + THE_THING_BETWING_DIR
+		//设置虚拟根目录
+		this.Realjs_source_path = this.js_source_path
+		this.js_source_path = this.VMRootPath + this.js_source_path
+		this.Realjs_source_path_with_file_name = this.js_source_path_with_file_name
+		this.js_source_path_with_file_name = this.VMRootPath + this.js_source_path_with_file_name
+		this.OnSandMode = true
+		return this.VMRootPath,nil	//返回虚拟根目录 方便移动相关脚本文件
+	}
+	//去除虚拟文件路径.
+	if this.OnSandMode{	//曾开启
+		//删除虚拟路径
+		this.VMRootPath = ""
+		this.js_source_path_with_file_name = this.Realjs_source_path_with_file_name
+		this.js_source_path = this.Realjs_source_path
+	}
+	this.OnSandMode = false
+	return "",nil
 }
