@@ -55,16 +55,21 @@ func (this Stack)Get(key int)(interface{},error){	//从0开始数
 	return this.data[key],nil
 }
 /*		JS中的Stack支持		*/
+type JS_StackEngine struct{
+	js *otto.Otto
+	JS_Stack map[string] *the_struct_of_js_stack
+}
 type the_struct_of_js_stack struct{
 	stack *Stack
 	Used bool
 }
-var JS_Stack map[string] *the_struct_of_js_stack
-func Set_JS_Stack(js *otto.Otto){
-	JS_Stack = make(map[string]*the_struct_of_js_stack)
+//var JS_Stack map[string] *the_struct_of_js_stack
+func (this *JS_StackEngine)Set_JS_Stack(js *otto.Otto){
+	this.JS_Stack = make(map[string]*the_struct_of_js_stack)
 	//0表示参数错误
 	//2表示该栈名已存在
 	//1表示成功
+	this.js = js
 	js.Set("NewStack",func(call otto.FunctionCall)otto.Value{
 		if call.Argument(0).IsNull(){
 			fmt.Print("No enough Arguments For NewStack")
@@ -77,14 +82,14 @@ func Set_JS_Stack(js *otto.Otto){
 		}
 		//fmt.Print(JS_Stack[stack_name].Used)
 		//return otto.Value{}
-		if JS_Stack[stack_name] != nil {
+		if this.JS_Stack[stack_name] != nil {
 			value,_ := otto.ToValue(2)
 			return value
 		}
-		JS_Stack[stack_name] = new(the_struct_of_js_stack)
-		JS_Stack[stack_name].Used = true
-		JS_Stack[stack_name].stack = new(Stack)
-		JS_Stack[stack_name].stack.init()
+		this.JS_Stack[stack_name] = new(the_struct_of_js_stack)
+		this.JS_Stack[stack_name].Used = true
+		this.JS_Stack[stack_name].stack = new(Stack)
+		this.JS_Stack[stack_name].stack.init()
 		return otto.TrueValue()
 	})
 	js.Set("Stack_Push",func(call otto.FunctionCall)otto.Value{
@@ -98,14 +103,14 @@ func Set_JS_Stack(js *otto.Otto){
 			fmt.Print("Error type of Data for Stack_Push on line:",call.CallerLocation())
 			return otto.FalseValue()
 		}
-		if JS_Stack[stack_name] == nil{
+		if this.JS_Stack[stack_name] == nil{
 			fmt.Print("Try to use a undefined Stack on line:",call.CallerLocation())
 			return otto.FalseValue()
 		}
 		//入栈
 		data := call.Argument(1)
 		fmt.Print("Pushed : ",data)
-		JS_Stack[stack_name].stack.Push(data)
+		this.JS_Stack[stack_name].stack.Push(data)
 		return otto.TrueValue()
 	})
 	js.Set("Stack_Pop",func(call otto.FunctionCall)otto.Value{
@@ -119,15 +124,15 @@ func Set_JS_Stack(js *otto.Otto){
 			fmt.Print("Error type of Data for Stack_Push on line:",call.CallerLocation())
 			return otto.FalseValue()
 		}
-		if JS_Stack[stack_name] == nil{
+		if this.JS_Stack[stack_name] == nil{
 			fmt.Print("Try to use a undefined Stack on line:",call.CallerLocation())
 			return otto.FalseValue()
 		}
 		//判断是否有数据
-		if JS_Stack[stack_name].stack.now == 0{
+		if this.JS_Stack[stack_name].stack.now == 0{
 			return otto.FalseValue()
 		}
-		fmt.Print("Pop:",JS_Stack[stack_name].stack.Pop())
+		fmt.Print("Pop:",this.JS_Stack[stack_name].stack.Pop())
 		value,err := otto.ToValue("s")
 		if err != nil{
 			fmt.Print("ERROR !!!!!!!RJS ERROR!!!!!On Stack_Pop.Please report this situation to Ruixue at https://Rxues.site")

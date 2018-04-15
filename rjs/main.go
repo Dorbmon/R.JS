@@ -5,9 +5,13 @@ import(
 	"flag"
 	//"io"
 	"fmt"
-
+	colors "github.com/issue9/term/colors"
+	"../c/build_about"
 )
+var std = colors.New(colors.Black,colors.White)
 func main(){
+	std.Println("Welcome to RJS.")
+	std.Println("Ruixue builded this version on:",build_about.GetBuildTime())
 	//fmt.Print(delete_interface("[sss]"))
 	file := flag.String("file","","The R.JS source file")
 	/*		获取部分限定参数		*/

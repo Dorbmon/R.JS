@@ -1,5 +1,4 @@
 package engine
-
 import (
 	"fmt"
 	otto "github.com/robertkrimen/otto"
@@ -24,6 +23,7 @@ import (
 	"../go_pkg/pkg_stack"
 	"../go_pkg/pkg_load"
 	//"log"
+	"runtime"
 )
 /*
                    _ooOoo_
@@ -53,15 +53,16 @@ type opened_file struct{
 	Chmode int;
 	Is_alive bool;
 }
-var Golang_path,_ = getCurrentPath()	//没有/
-var golang_path,_ = getCurrentPath()	//没有/
-var js_source_path string	//没有/
-var js_source_path_with_file_name string
-		var OPENED_FILE_NUMBER = 10	//初始化时给opened_file map的个数
-		var OPENED_FILE_MAX int	//最大打开文件数
-	 	var THE_THING_BETWING_DIR = "\\"
-	 	var js = otto.New()
-
+var(	//默认引擎的设置
+	js_source_path_with_file_name string
+	OPENED_FILE_NUMBER = 10	//初始化时给opened_file map的个数
+	OPENED_FILE_MAX int	//最大打开文件数
+	THE_THING_BETWING_DIR = "\\"
+	js = otto.New()
+	Golang_path,_ = getCurrentPath()	//没有/
+	golang_path,_ = getCurrentPath()	//没有/
+	js_source_path string	//没有/
+)
 func GetJs()*otto.Otto{
 	return js
 }
@@ -214,7 +215,7 @@ func load_outside_progarm(js *otto.Otto,this *RJSEngine){
 	pkg_os.Swap_data(js)
 	//pkg_load.SwapJS(js)
 	this.Load_.SwapJS(js)
-	this.Stack_.SetJS(js)
+	this.Stack_.Set_JS_Stack(js)
 }
 type RJSEngine struct{
 	Js *otto.Otto
@@ -229,8 +230,8 @@ type RJSEngine struct{
 	Realjs_source_path string //没有/
 	Realjs_source_path_with_file_name string
 	//下列为库
-	Stack_ pkg_stack.JSStack
-	Load_ pkg_load.JSLoad
+	Stack_ pkg_stack.JS_StackEngine
+	Load_ pkg_load.JSLoader
 }
 func (this *RJSEngine)Init(){
 	this.Js = otto.New()
@@ -249,6 +250,20 @@ func (this *RJSEngine)Init(){
 		//sjs.Eval(call.Argument(0))
 		_,err := js.Call(call.Argument(0).String(),nil)
 		fmt.Print(err)
+	})
+	js.Set("OS_SET_MAXPROCS",func(call otto.FunctionCall)otto.Value{
+		procs,err := call.Argument(0).ToInteger()
+		if err != nil{
+			fmt.Print("ERROR Type Of Data For OS_SET")
+			this.OnStrictMode()
+			return otto.FalseValue()
+		}
+		runtime.GOMAXPROCS(int(procs))
+		return otto.TrueValue()
+	})
+	js.Set("OS_GET_MAXPROCS",func()otto.Value{
+		value,_ := otto.ToValue(runtime.NumCPU())
+		return value
 	})
 	js.Set("output", func(call otto.FunctionCall) otto.Value {
 		//js.Call(call.Argument(0).String(),"")
@@ -434,7 +449,6 @@ func (this *RJSEngine)Init(){
 		}
 		return result
 	})
-
 	/*		源代码处理部分		*/
 	js.Set("include",func(call otto.FunctionCall) otto.Value{
 		if !check_data(call,1){
@@ -532,7 +546,8 @@ func (this *RJSEngine)Init(){
 	})
 	return
 }
-func (this *RJSEngine)SetsandBoxMode(status bool,vmName string)(string,error){	//是否启用沙盒模式。如果使用沙盒模式，任何操作不会在物理机上生效，如果关闭沙盒操作，之前的操作也不会生效
+func (this *RJSEngine)SetsandBoxMode(status bool,vmName string)(string,error){
+	//是否启用沙盒模式。如果使用沙盒模式，任何操作不会在物理机上生效，如果关闭沙盒操作，之前的操作也不会生效
 	//建立虚拟目录系统.
 
 	if status{	//开启
@@ -561,4 +576,20 @@ func (this *RJSEngine)SetsandBoxMode(status bool,vmName string)(string,error){	/
 	}
 	this.OnSandMode = false
 	return "",nil
+}
+func (this RJSEngine)OnStrictMode(){
+	IfStrictMode,err := this.Js.Get("RJS_CONFIG_STRIT_MODE")
+	if err != nil{
+		fmt.Print("ERRO CONFIG.RJS_CONFIG_STRIT_MODE")
+		os.Exit(0)
+	}
+	confident,err :=  IfStrictMode.ToBoolean()
+	if err != nil{
+		fmt.Print("ERRO CONFIG.RJS_CONFIG_STRIT_MODE")
+		os.Exit(0)
+	}
+	if confident{
+		os.Exit(0)
+	}
+	return
 }

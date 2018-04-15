@@ -1,3 +1,6 @@
+// +build windows
+
+//Only Windows
 package pkg_load
 //RJS动态加载链接库
 
@@ -10,19 +13,21 @@ import(
 	"syscall"
 	"unsafe"
 )
-var js *otto.Otto
 type LoadedFileFunc struct{
 	func_map map[string]*plugin.Symbol
 	FilePointer *plugin.Plugin
 	has bool
 }
 var LoadedFile map[string]*LoadedFileFunc
-func SwapJS(engine *otto.Otto){
-	js = engine
+func (this *JSLoader)SwapJS(engine *otto.Otto){
+	this.js = engine
 	LoadedFile = make(map[string]*LoadedFileFunc,1)
 }
-
-func Load(file_name string)bool{
+type JSLoader struct{
+	LoadedFile map[string]*LoadedFileFunc
+	js *otto.Otto
+}
+func (this *JSLoader)Load(file_name string)bool{
 	if LoadedFile[file_name].has{
 		return true
 	}
@@ -30,22 +35,22 @@ func Load(file_name string)bool{
 	if err != nil{
 		return false
 	}
-	LoadedFile[file_name].has = true
-	LoadedFile[file_name].FilePointer = temp
+	this.LoadedFile[file_name].has = true
+	this.LoadedFile[file_name].FilePointer = temp
 	FunctionList,err := temp.Lookup("RjsFunctionList")
 	if err != nil{
 		fmt.Print("不规范的RJS库")
 		return false
 	}
 	FuncList := strings.SplitAfter(FunctionList.(func()string)()," ")
-	LoadedFile[file_name].func_map = make(map[string]*plugin.Symbol)
+	this.LoadedFile[file_name].func_map = make(map[string]*plugin.Symbol)
 	var row string
 	//加载函数
 	for _,row = range FuncList{
-		*LoadedFile[file_name].func_map[row],err = temp.Lookup(row)
+		*this.LoadedFile[file_name].func_map[row],err = temp.Lookup(row)
 		if err != nil{	//与函数表中函数不符
 			fmt.Print("ERROR When load function:\" " + row +"\" from: \" " + file_name +"\"")
-			OnStrictMode(js)
+			OnStrictMode(this.js)
 		}
 	}
 	//提供回调接口给对方库
@@ -55,14 +60,14 @@ func Load(file_name string)bool{
 		return false
 	}
 	//RjsGetVariableFunction.(func(func()))(GetVariableValue)
-	GetVariableValueCallBack := syscall.NewCallback(GetVariableValue)
+	GetVariableValueCallBack := syscall.NewCallback(this.GetVariableValue)
 	RjsGetVariableFunction.(func(unsafe.Pointer))(unsafe.Pointer(GetVariableValueCallBack))
 	RjsSetVariableFunction,err := temp.Lookup("RjsSetSetVariableFunction")
 	if err != nil{
 		fmt.Print("不规范的RJS库")
 		return false
 	}
-	SetVariableFunctionCallBack := syscall.NewCallback(SetVariableValue)
+	SetVariableFunctionCallBack := syscall.NewCallback(this.SetVariableValue)
 	RjsSetVariableFunction.(func(unsafe.Pointer))(unsafe.Pointer(SetVariableFunctionCallBack))
 	return true
 }
@@ -94,19 +99,19 @@ func OnStrictMode(vm *otto.Otto){
 	}
 	return
 }
-func GetVariableValue(VariableName string)string{
-	value,err := js.Get(VariableName)
+func (this JSLoader)GetVariableValue(VariableName string)string{
+	value,err := this.js.Get(VariableName)
 	if err != nil{
 		fmt.Print("ERROR When Call GetVariableValue.ERROR VariableName")
 		os.Exit(0)
 	}
 	return value.String()
 }
-func SetVariableValue(VaribleName string,Value string)bool{
-	err := js.Set(VaribleName,Value)
+func (this *JSLoader)SetVariableValue(VaribleName string,Value string)bool{
+	err := this.js.Set(VaribleName,Value)
 	if err != nil{
 		fmt.Print(err)
-		OnStrictMode(js)
+		OnStrictMode(this.js)
 		return false
 	}
 	return true
