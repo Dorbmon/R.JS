@@ -14,6 +14,6 @@ type JSLoader struct{
 	js *otto.Otto
 }
 func (this *JSLoader)SwapJS(engine *otto.Otto){
-	//Do nothing......We will suport this soon...
+	//Do nothing......We will support this soon...
 	this.js = engine
 }

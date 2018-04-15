@@ -1,7 +1,4 @@
 ﻿
-output(test);
+//output(test);
 //call(test);
-function test(){
-	output("Hi");
-
-}
+RJS_SECRET_TELLING();

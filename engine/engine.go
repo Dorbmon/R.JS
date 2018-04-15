@@ -22,6 +22,7 @@ import (
 	"../go_pkg/pkg_os"
 	"../go_pkg/pkg_stack"
 	"../go_pkg/pkg_load"
+	"../go_pkg/pkg_secret"
 	//"log"
 	"runtime"
 )
@@ -91,9 +92,10 @@ func Run(file *string){
 		}
 		//fmt.Print(js_source_path)
 		//os.Exit(0)
-
-		_,err := js.Run(string(JavaScript))
-
+		engine := RJSEngine{}
+		engine.Init()
+		//pkg_secret.SwapData(engine.Js)
+		_,err := engine.Js.Run(string(JavaScript))
 		if err != nil{
 			error_e(err)
 		}
@@ -216,6 +218,7 @@ func load_outside_progarm(js *otto.Otto,this *RJSEngine){
 	//pkg_load.SwapJS(js)
 	this.Load_.SwapJS(js)
 	this.Stack_.Set_JS_Stack(js)
+	pkg_secret.SwapData(js)
 }
 type RJSEngine struct{
 	Js *otto.Otto
