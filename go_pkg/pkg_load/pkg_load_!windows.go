@@ -3,8 +3,8 @@
 package pkg_load
 type LoadedFileFunc struct{
 	//func_map map[string]*plugin.Symbol
-	FilePointer *plugin.Plugin
-	has bool
+	//FilePointer *plugin.Plugin
+	//has bool
 }
 type JSLoader struct{
 	LoadedFile map[string]*LoadedFileFunc
