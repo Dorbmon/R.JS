@@ -1,6 +1,9 @@
 // +build !windows
 
 package pkg_load
+import(
+	"github.com/robertkrimen/otto"
+)
 type LoadedFileFunc struct{
 	//func_map map[string]*plugin.Symbol
 	//FilePointer *plugin.Plugin
