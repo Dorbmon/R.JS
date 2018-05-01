@@ -53,3 +53,34 @@ function TCP_SERVER(){
         IO_Start_TCP_Server(ip,port,this.Onconnection);
     };
 }
+function XMLHttpRequest(){
+    this.readyState = 0;
+    this.status = 0;
+    this.mode = "GET";
+    this.url = "https://rxues.site";
+    this.open = function(mode,url,asynchronous){
+        this.mode = mode;
+        this.url = url;
+        var RandName = OnlyRand();
+        if(NETWORK_AJAX(url,mode,RandName) == false){
+            //生成失败
+            return false;
+        }
+        this.asynchronous = asynchronous;
+        this.ObjName = RandName;
+        return true;
+    };
+    this.Set = function(key,value){
+        return NETWORK_AJAX_SET(this.ObjName,key,value);
+    };
+    this.Send = function(CallBackFunction,ErrorFunction){
+        //发送消息
+        NET_AJAX_ON_MESSAGE_FUNCTION(CallBackFunction,this.ObjName);
+        NET_AJAX_ON_ERROR_FUNCTION(ErrorFunction,this.ObjName);
+        NETWORK_AJAX_SEND(this.ObjName,this.asynchronous);
+        return;
+    };
+    this.setRequestHeader = function(key,value){
+        return NETWORK_AJAX_SET_REQUEST_HEADER(this.ObjName,key,value);
+    };
+}

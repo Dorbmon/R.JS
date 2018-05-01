@@ -5,5 +5,10 @@ if(!stack){
     //创建失败
     output("栈创建失败");
 }
-stack.Push("ssss");
-output(stack.Pop());
+//stack.Push("ssss");
+//output(stack.Pop());
+call(test);
+function test(){
+    output("HAHA");
+    return "Nice";
+}

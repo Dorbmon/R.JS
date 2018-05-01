@@ -15,6 +15,8 @@ import (
 
 	"math/rand"
 	//"math"
+	"github.com/mattn/go-sqlite3"
+	"database/sql"
 )
 //此处为RJS库
 import (
@@ -23,6 +25,7 @@ import (
 	"../go_pkg/pkg_stack"
 	"../go_pkg/pkg_load"
 	"../go_pkg/pkg_secret"
+	"../go_pkg/pkg_math"
 	//"log"
 	"runtime"
 )
@@ -248,11 +251,29 @@ func (this *RJSEngine)Init(){
 
 	init_Java_Script_Const(js)
 	/*		IO部分		*/
-	js.Set("call",func(call otto.FunctionCall){
+	js.Set("call",func(call otto.Value){
 		//call.Argument(0).Call()
 		//sjs.Eval(call.Argument(0))
-		_,err := js.Call(call.Argument(0).String(),nil)
+		//_,err := js.Call(call.Argument(0).String(),nil)
+		//f,_ := js.Get(call.Argument(0).String())
+
+		//js.Run(f)
+		//js.Call(f.String(),nil)
+		//call.
+		//fmt.Print(call.Call(call,nil))
+
+	})
+	/*		初始化SqlLite3		*/
+	db,err := sql.Open("","./RjsSystem.db")
+	if err != nil{
+		//发生错误
 		fmt.Print(err)
+		this.OnStrictMode()
+	}
+
+	js.Set("OnlyRand",func()otto.Value{	//生成唯一的随机数
+		value,_ := otto.ToValue(pkg_math.UniqueId())
+		return value
 	})
 	js.Set("OS_SET_MAXPROCS",func(call otto.FunctionCall)otto.Value{
 		procs,err := call.Argument(0).ToInteger()
@@ -268,6 +289,7 @@ func (this *RJSEngine)Init(){
 		value,_ := otto.ToValue(runtime.NumCPU())
 		return value
 	})
+	//js.Set("")
 	js.Set("output", func(call otto.FunctionCall) otto.Value {
 		//js.Call(call.Argument(0).String(),"")
 		n := 0

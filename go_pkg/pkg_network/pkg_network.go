@@ -11,14 +11,19 @@ import(
 	//"io/ioutil"
 	//"log"
 	"os"
+	"strings"
 )
 //var TCP_LISTENER_MAP = make(map[int]TCP_LISTENER)
 //var TCP_LISTENER_MAP map[int]TCP_LISTENER
 type AJAX_LIST struct{
-	url *url.URL
+	url string
 	value url.Values
 	has bool
-	OnErrorCallBackFuntion otto.Context
+	OnErrorCallBackFuntion otto.Value
+	OnMessageCallBackFunction otto.Value
+	mode string
+	hr *http.Request
+	request http.Request
 }
 var AJAX_OBJECT_LIST map[string]*AJAX_LIST
 var js *otto.Otto
@@ -52,9 +57,6 @@ func Swap_Data_From_Main(js_engine *otto.Otto){
 			OnStrictMode(js)
 			return otto.FalseValue()
 		}
-		if AJAX_OBJECT_LIST[obj_name].has{	//已经存在该名称
-			return otto.FalseValue()
-		}
 		urlArgument,err := call.Argument(0).ToString()
 		if err != nil{
 			//类型错误
@@ -62,17 +64,31 @@ func Swap_Data_From_Main(js_engine *otto.Otto){
 			OnStrictMode(js)
 			return otto.FalseValue()
 		}
-		AJAX_OBJECT_LIST[obj_name].url,err = url.Parse(urlArgument)
+		Mode,err := call.Argument(0).ToString()
+		if err != nil{
+			//类型错误
+			fmt.Print("The type of the url of NETWORK_AJAX is wrong on:",call.CallerLocation())
+			OnStrictMode(js)
+			return otto.FalseValue()
+		}
+		if AJAX_OBJECT_LIST[obj_name].has{	//已经存在该名称
+			return otto.FalseValue()
+		}
+		AJAX_OBJECT_LIST[obj_name].mode = Mode
+		//AJAX_OBJECT_LIST[obj_name].url,err = url.Parse(urlArgument)
+		AJAX_OBJECT_LIST[obj_name].hr.ParseForm()
 		if err != nil{
 			fmt.Print("ERROR URL on:",call.CallerLocation())
 			OnStrictMode(js)
 			return otto.FalseValue()
 		}
-		AJAX_OBJECT_LIST[obj_name].value = AJAX_OBJECT_LIST[obj_name].url.Query()
+		//AJAX_OBJECT_LIST[obj_name].hr = http.NewRequest(Mode,urlArgument,)
+		//AJAX_OBJECT_LIST[obj_name].value = AJAX_OBJECT_LIST[obj_name].url.Query()
+		AJAX_OBJECT_LIST[obj_name].url = urlArgument
 		value,_ := otto.ToValue(obj_name)
 		return value
 	})
-	js.Set("NET_AJAX_ON_ERROR_FUNCTION",func(call otto.FunctionCall)otto.Value{//参数1为AJAX名称。参数2为函数 非名称
+	js.Set("NET_AJAX_ON_ERROR_FUNCTION",func(CallBackFunction otto.Value,call otto.FunctionCall)otto.Value{//参数2为AJAX名称。参数1为函数 非名称
 		if call.Argument(1).IsNull(){
 			fmt.Print("Data is not enough for NETWORK_AJAX_SET on:",call.CallerLocation())
 			OnStrictMode(js)
@@ -84,12 +100,34 @@ func Swap_Data_From_Main(js_engine *otto.Otto){
 			OnStrictMode(js)
 			return otto.FalseValue()
 		}
-		OnErrorCallBackFunction := call.Argument(1)
+		OnErrorCallBackFunction := CallBackFunction
 		if !OnErrorCallBackFunction.IsFunction(){
 			fmt.Print(OnErrorCallBackFunction," is not a Function on:",call.CallerLocation()," Please Check it.")
 			OnStrictMode(js)
 			return otto.FalseValue()
 		}
+		AJAX_OBJECT_LIST[ajaxName].OnErrorCallBackFuntion = CallBackFunction
+		return otto.TrueValue()
+	})
+	js.Set("NET_AJAX_ON_MESSAGE_FUNCTION",func(CallBackFunction otto.Value,call otto.FunctionCall)otto.Value{//参数2为AJAX名称。参数1为函数 非名称
+		if call.Argument(1).IsNull(){
+			fmt.Print("Data is not enough for NETWORK_AJAX_SET on:",call.CallerLocation())
+			OnStrictMode(js)
+			return otto.FalseValue()
+		}
+		ajaxName := call.Argument(0).String()
+		if !AJAX_OBJECT_LIST[ajaxName].has{
+			fmt.Print("ERROR ajaxName:\"" + ajaxName +"\" on:",call.CallerLocation())
+			OnStrictMode(js)
+			return otto.FalseValue()
+		}
+		OnErrorCallBackFunction := CallBackFunction
+		if !OnErrorCallBackFunction.IsFunction(){
+			fmt.Print(OnErrorCallBackFunction," is not a Function on:",call.CallerLocation()," Please Check it.")
+			OnStrictMode(js)
+			return otto.FalseValue()
+		}
+		AJAX_OBJECT_LIST[ajaxName].OnMessageCallBackFunction = CallBackFunction
 		return otto.TrueValue()
 	})
 	js.Set("NETWORK_AJAX_SET",func(call otto.FunctionCall)otto.Value{//参数1为AJAX名称。参数2为参数名称，参数3为参数值
@@ -106,7 +144,26 @@ func Swap_Data_From_Main(js_engine *otto.Otto){
 		}
 		name := call.Argument(1).String()
 		value := call.Argument(2).String()
-		AJAX_OBJECT_LIST[ajaxName].value.Set(name,value)
+		//AJAX_OBJECT_LIST[ajaxName].value.Set(name,value)
+		//AJAX_OBJECT_LIST[ajaxName].hr.Form.Add(name,value)
+		AJAX_OBJECT_LIST[ajaxName].hr.Form.Set(name,value)
+		return otto.TrueValue()
+	})
+	js.Set("NETWORK_AJAX_SET_REQUEST_HEADER",func(call otto.FunctionCall)otto.Value{
+		if call.Argument(3).IsNull(){
+			fmt.Print("Data is not enough for NETWORK_AJAX_SET_REQUEST_HEADER on:",call.CallerLocation())
+			OnStrictMode(js)
+			return otto.FalseValue()
+		}
+		ajaxName := call.Argument(0).String()
+		if !AJAX_OBJECT_LIST[ajaxName].has{
+			fmt.Print("ERROR ajaxName:\"" + ajaxName +"\" on:",call.CallerLocation())
+			OnStrictMode(js)
+			return otto.FalseValue()
+		}
+		key := call.Argument(1).String()
+		value := call.Argument(2).String()
+		AJAX_OBJECT_LIST[ajaxName].hr.Header.Set(key,value)
 		return otto.TrueValue()
 	})
 	js.Set("NETWORK_AJAX_SEND",func(call otto.FunctionCall)otto.Value{	//参数1为AJAX名称，参数2为是否为异步
@@ -128,18 +185,33 @@ func Swap_Data_From_Main(js_engine *otto.Otto){
 			return otto.FalseValue()
 		}
 		//解析信息
-		AJAX_OBJECT_LIST[ajaxName].url.RawQuery = AJAX_OBJECT_LIST[ajaxName].value.Encode()
+		//AJAX_OBJECT_LIST[ajaxName].url.RawQuery = AJAX_OBJECT_LIST[ajaxName].value.Encode()
+		AJAX_OBJECT_LIST[ajaxName].hr,err = http.NewRequest(AJAX_OBJECT_LIST[ajaxName].mode,AJAX_OBJECT_LIST[ajaxName].url,strings.NewReader(strings.TrimSpace(AJAX_OBJECT_LIST[ajaxName].hr.Form.Encode())))
 		//res,err := http.Get(AJAX_OBJECT_LIST[ajaxName].url.String())
-
+		if err != nil{	//创建出错
+			AJAX_OBJECT_LIST[ajaxName].OnErrorCallBackFuntion.Call(AJAX_OBJECT_LIST[ajaxName].OnErrorCallBackFuntion,err)
+		}
 		if ifAsynchronous{
 			//异步
 			go func(engine *otto.Otto){
-				_,err := http.Get(AJAX_OBJECT_LIST[ajaxName].url.String())
-				//请求完成
+				//AJAX_OBJECT_LIST[ajaxName].url.
+				resp,err := http.DefaultClient.Do(AJAX_OBJECT_LIST[ajaxName].hr)
+				//_,err := http.Get(AJAX_OBJECT_LIST[ajaxName].url.String())
 				if err != nil{
-
+					//请求出错
+					AJAX_OBJECT_LIST[ajaxName].OnErrorCallBackFuntion.Call(AJAX_OBJECT_LIST[ajaxName].OnErrorCallBackFuntion,err)
 				}
+				//请求完成
+				//回调成功函数
+				Code := resp.StatusCode
+				AJAX_OBJECT_LIST[ajaxName].OnMessageCallBackFunction.Call(AJAX_OBJECT_LIST[ajaxName].OnMessageCallBackFunction,Code,resp.Body)
+
 			}(js)
+		}else{	//同步
+			result,err := http.Get(AJAX_OBJECT_LIST[ajaxName].url.String())
+			//请求完成
+			Code := result.StatusCode
+
 		}
 		return otto.TrueValue()
 	})
