@@ -19,14 +19,14 @@ function R_File(){
 }
 function R_IO(){
     this.OpenFile = function(FileName,Chmode){
-        temp_file_obj = new R_File();
+        var temp_file_obj = new R_File();
         temp_file_obj.File_id = IO_fopen(FileName,Chmode);
         temp_file_obj.File_name = FileName;
         return temp_file_obj;
     };
 }
 function IO_OpenFile (FileName,Chmode){
-    temp_file_obj = new R_File();
+    var temp_file_obj = new R_File();
     temp_file_obj.File_id = IO_fopen(FileName,Chmode);
     temp_file_obj.File_name = FileName;
     return temp_file_obj;

@@ -13,6 +13,9 @@ import(
 	"os"
 	"strings"
 )
+import(
+	"./pkg_http"
+)
 //var TCP_LISTENER_MAP = make(map[int]TCP_LISTENER)
 //var TCP_LISTENER_MAP map[int]TCP_LISTENER
 type AJAX_LIST struct{
@@ -27,13 +30,15 @@ type AJAX_LIST struct{
 }
 var AJAX_OBJECT_LIST map[string]*AJAX_LIST
 var js *otto.Otto
-var listener_number = 0
+var listener_number = 0	//tcp
+var Ajax_listener_number = 0
 var listen_list pkg_stack.Stack
 var error_ = func(err error){
 	fmt.Print(err)
 }
 const (
 	MAX_TCP_LISTENER = 100
+	MAX_AJAX = 100
 )
 func Swap_Data_From_Main(js_engine *otto.Otto){
 	AJAX_OBJECT_LIST = make(map[string]*AJAX_LIST)
@@ -50,6 +55,15 @@ func Swap_Data_From_Main(js_engine *otto.Otto){
 			OnStrictMode(js)
 			return otto.FalseValue()
 		}
+		listener_number ++
+		if Ajax_listener_number > MAX_AJAX{
+			//超出最大AJAX数
+			fmt.Println("ERROR,Ajax_listen_number > MAX_AJAX")
+			Ajax_listener_number--
+			OnStrictMode(js)
+			return otto.FalseValue()
+		}
+
 		obj_name,err := call.Argument(2).ToString()
 		if err != nil{
 			//类型错误
@@ -208,10 +222,17 @@ func Swap_Data_From_Main(js_engine *otto.Otto){
 
 			}(js)
 		}else{	//同步
-			result,err := http.Get(AJAX_OBJECT_LIST[ajaxName].url.String())
+			resp,err := http.DefaultClient.Do(AJAX_OBJECT_LIST[ajaxName].hr)
+			//_,err := http.Get(AJAX_OBJECT_LIST[ajaxName].url.String())
+			if err != nil{
+				//请求出错
+				AJAX_OBJECT_LIST[ajaxName].OnErrorCallBackFuntion.Call(AJAX_OBJECT_LIST[ajaxName].OnErrorCallBackFuntion,err)
+				OnStrictMode(js)
+				return otto.FalseValue()
+			}
 			//请求完成
-			Code := result.StatusCode
-
+			Code := resp.StatusCode
+			AJAX_OBJECT_LIST[ajaxName].OnMessageCallBackFunction.Call(AJAX_OBJECT_LIST[ajaxName].OnMessageCallBackFunction,Code,resp.Body)
 		}
 		return otto.TrueValue()
 	})

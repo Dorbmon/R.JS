@@ -270,8 +270,8 @@ func (this *RJSEngine)Init(){
 		fmt.Print(err)
 		this.OnStrictMode()
 	}
-
-	js.Set("OnlyRand",func()otto.Value{	//生成唯一的随机数
+	db.Ping()
+	js.Set("OnlyRand",func()otto.Value{	//生成唯一的随机ID
 		value,_ := otto.ToValue(pkg_math.UniqueId())
 		return value
 	})
