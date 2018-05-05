@@ -14,7 +14,7 @@ import(
 	"strings"
 )
 import(
-	"./pkg_http"
+	//"./pkg_http"
 )
 //var TCP_LISTENER_MAP = make(map[int]TCP_LISTENER)
 //var TCP_LISTENER_MAP map[int]TCP_LISTENER
@@ -40,10 +40,12 @@ const (
 	MAX_TCP_LISTENER = 100
 	MAX_AJAX = 100
 )
+
 func Swap_Data_From_Main(js_engine *otto.Otto){
 	AJAX_OBJECT_LIST = make(map[string]*AJAX_LIST)
 	//url,err := url.Parse("xx")
 	js = js_engine
+
 	//TCP_LISTENER_MAP = make(map[int]TCP_LISTENER)
 	//error_ = error_func.(func())
 	//初始化队列

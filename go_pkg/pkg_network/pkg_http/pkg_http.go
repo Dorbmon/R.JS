@@ -110,7 +110,7 @@ func (this *Pkg_http)Init(js *otto.Otto){
 		return otto.TrueValue()
 	})
 	js.Set("NETWORK_HTTP_SET_CALLBACK_FUNCTION",func(call otto.FunctionCall)otto.Value{
-		
+		return otto.TrueValue()
 	})
 	js.Set("NETWORK_HTTP_LISTEN",func(call otto.FunctionCall)otto.Value{	//第一个参数为HTTP名称，第二个参数为端口
 		HttpName,err := call.Argument(0).ToString()

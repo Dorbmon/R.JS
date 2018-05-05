@@ -15,8 +15,8 @@ import (
 
 	"math/rand"
 	//"math"
-	"github.com/mattn/go-sqlite3"
-	"database/sql"
+	//"github.com/mattn/go-sqlite3"
+	//"database/sql"
 )
 //此处为RJS库
 import (
@@ -150,10 +150,10 @@ func check_data_(call otto.FunctionCall,must_number int) bool{
 	return false
 }
 func error_(message string){
-	fmt.Print("ERROR:",message)
+	fmt.Println("ERROR:",message)
 }
 func error_e(message error){
-	fmt.Print(message)
+	fmt.Println(message)
 }
 func checkFileIsExist(filename string) bool {
 	if _, err := os.Stat(filename); err == nil {
@@ -226,6 +226,7 @@ func load_outside_progarm(js *otto.Otto,this *RJSEngine){
 type RJSEngine struct{
 	Js *otto.Otto
 	//环境变量
+	RunPoiontMode bool
 	VMRootPath string
 	js_source_path string	//没有/
 	js_source_path_with_file_name string
@@ -248,8 +249,25 @@ func (this *RJSEngine)Init(){
 	/*	init Including Setting	*/
 	pkg_network.Swap_Data_From_Main(js)
 	//include_network.
-
 	init_Java_Script_Const(js)
+	js.Set("output", func(call otto.FunctionCall) otto.Value {
+		//js.Call(call.Argument(0).String(),"")
+		n := 0
+		for {
+			value := call.Argument(n)
+			if !value.IsDefined(){
+				break
+			}
+			n++
+			fmt.Print(value)
+		}
+		//return otto.Value{temp,"output"}
+		return otto.Value{}
+		//return otto.Value{}
+	})
+	if this.RunPoiontMode{
+		goto jump_step
+	}
 	/*		IO部分		*/
 	js.Set("call",func(call otto.Value){
 		//call.Argument(0).Call()
@@ -264,13 +282,13 @@ func (this *RJSEngine)Init(){
 
 	})
 	/*		初始化SqlLite3		*/
-	db,err := sql.Open("","./RjsSystem.db")
-	if err != nil{
+	//db,err := sql.Open("","./RjsSystem.db")
+	/*if err != nil{
 		//发生错误
 		fmt.Print(err)
 		this.OnStrictMode()
-	}
-	db.Ping()
+	}*/
+	//db.Ping()
 	js.Set("OnlyRand",func()otto.Value{	//生成唯一的随机ID
 		value,_ := otto.ToValue(pkg_math.UniqueId())
 		return value
@@ -290,21 +308,6 @@ func (this *RJSEngine)Init(){
 		return value
 	})
 	//js.Set("")
-	js.Set("output", func(call otto.FunctionCall) otto.Value {
-		//js.Call(call.Argument(0).String(),"")
-		n := 0
-		for {
-			value := call.Argument(n)
-			if !value.IsDefined(){
-				break
-			}
-			n++
-			fmt.Print(value)
-		}
-		//return otto.Value{temp,"output"}
-		return otto.Value{}
-		//return otto.Value{}
-	})
 	js.Set("IO_fopen",func(call otto.FunctionCall) otto.Value{
 		if !check_data(call,2){
 			error_("ERROR DATA FOR fopen")
@@ -569,6 +572,7 @@ func (this *RJSEngine)Init(){
 		pkg_network.Start_Listen(TCP_IP,int(Port),temp_recall_message)
 		return otto.Value{}
 	})
+	jump_step:
 	return
 }
 func (this *RJSEngine)SetsandBoxMode(status bool,vmName string)(string,error){
