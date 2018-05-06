@@ -1,8 +1,5 @@
-var start = new Date().getTime();
-/*
-var i = 0;
-for(var a = 0;a < 100000;a++){
-    i = (i + 1) * (i + 2);
-}*/
-var end = new Date().getTime();
-output(end - start + 1);
+include("ww.js");
+test();
+var net = new brain.NeuralNetwork();
+net.train([{input:[0],output:[1]},{input:[1],output:[0]}]);
+output(net.run([0]));

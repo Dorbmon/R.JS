@@ -6,13 +6,14 @@ import (
 	"os"
 	"io/ioutil"
 	//"strconv"
+	"go/build"
 	"unsafe"
 	"path/filepath"
 	"os/exec"
 	"errors"
 	"strings"
 	//"io"
-
+	"runtime"
 	"math/rand"
 	//"math"
 	//"github.com/mattn/go-sqlite3"
@@ -27,8 +28,9 @@ import (
 	"../go_pkg/pkg_secret"
 	"../go_pkg/pkg_math"
 	//"log"
-	"runtime"
+
 )
+
 /*
                    _ooOoo_
                   o8888888o
@@ -61,7 +63,7 @@ var(	//默认引擎的设置
 	js_source_path_with_file_name string
 	OPENED_FILE_NUMBER = 10	//初始化时给opened_file map的个数
 	OPENED_FILE_MAX int	//最大打开文件数
-	THE_THING_BETWING_DIR = "\\"
+	THE_THING_BETWING_DIR = string(os.PathSeparator)
 	js = otto.New()
 	Golang_path,_ = getCurrentPath()	//没有/
 	golang_path,_ = getCurrentPath()	//没有/
@@ -300,7 +302,9 @@ func (this *RJSEngine)Init(){
 			this.OnStrictMode()
 			return otto.FalseValue()
 		}
+		//fmt.Print("porcs:",procs)
 		runtime.GOMAXPROCS(int(procs))
+		//runtime.SetCPUProfileRate()
 		return otto.TrueValue()
 	})
 	js.Set("OS_GET_MAXPROCS",func()otto.Value{
@@ -621,4 +625,17 @@ func (this RJSEngine)OnStrictMode(){
 		os.Exit(0)
 	}
 	return
+}
+type RJSEngineVersion struct{
+	Version float32
+	BuildOS string
+}
+func Version()RJSEngineVersion{
+	version := RJSEngineVersion{}
+	version.Version = 0.1
+	BuildContext := build.Default
+	version.BuildOS = BuildContext.GOOS
+	fmt.Print(BuildContext.GOARCH)
+	//build.
+	return version
 }
