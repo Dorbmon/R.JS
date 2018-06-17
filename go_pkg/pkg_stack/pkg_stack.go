@@ -109,7 +109,7 @@ func (this *JS_StackEngine)Set_JS_Stack(js *otto.Otto){
 		}
 		//入栈
 		data := call.Argument(1)
-		fmt.Print("Pushed : ",data)
+		//fmt.Print("Pushed : ",data)
 		this.JS_Stack[stack_name].stack.Push(data)
 		return otto.TrueValue()
 	})
@@ -132,7 +132,7 @@ func (this *JS_StackEngine)Set_JS_Stack(js *otto.Otto){
 		if this.JS_Stack[stack_name].stack.now == 0{
 			return otto.FalseValue()
 		}
-		fmt.Print("Pop:",this.JS_Stack[stack_name].stack.Pop())
+		//fmt.Print("Pop:",this.JS_Stack[stack_name].stack.Pop())
 		value,err := otto.ToValue("s")
 		if err != nil{
 			fmt.Print("ERROR !!!!!!!RJS ERROR!!!!!On Stack_Pop.Please report this situation to Ruixue at https://Rxues.site")

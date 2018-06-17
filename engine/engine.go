@@ -27,10 +27,11 @@ import (
 	"../go_pkg/pkg_load"
 	"../go_pkg/pkg_secret"
 	"../go_pkg/pkg_math"
+	//"../go_pkg/pkg_ffi"
 	//"log"
 
 )
-
+//runtime.GOMAXPROCS(runtime)
 /*
                    _ooOoo_
                   o8888888o
@@ -241,6 +242,7 @@ type RJSEngine struct{
 	//下列为库
 	Stack_ pkg_stack.JS_StackEngine
 	Load_ pkg_load.JSLoader
+	//FfiSystem pkg_ffi.FfiSystem
 }
 func (this *RJSEngine)Init(){
 	this.Js = otto.New()
@@ -635,7 +637,27 @@ func Version()RJSEngineVersion{
 	version.Version = 0.1
 	BuildContext := build.Default
 	version.BuildOS = BuildContext.GOOS
-	fmt.Print(BuildContext.GOARCH)
+	//fmt.Print(BuildContext.GOARCH)
 	//build.
 	return version
+}
+// These functions that are below are set for C++
+func (this RJSEngine)SetVar(VarName string,Value interface{})string{
+	error := this.Js.Set(VarName,Value)
+	return error.Error()
+}
+func (this RJSEngine)GetVar(VarName string)interface{}{
+	value,err := this.Js.Get(VarName)
+	if err != nil{
+		return err
+	}
+	return value
+}
+func (this RJSEngine)CallFunc(FuncName string,data []interface{})interface{}{
+	result,err := this.Js.Call(FuncName,data[0:])
+	if err != nil{
+		return err
+	}
+	return result
+	//result := this.Js.Call()
 }

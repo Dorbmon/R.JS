@@ -5,11 +5,11 @@ import(
 	"flag"
 	//"io"
 	"fmt"
-	colors "github.com/issue9/term/colors"
 	//"../c/build_about"
 )
-var std = colors.New(colors.Black,colors.White)
 func main(){
+	//判断是否为加载RJS web库命令
+	WebDownload := flag.String("get","","If Download From Web")
 	//std.Println("Welcome to RJS.")
 	//std.Println("Ruixue builded this version on:",build_about.GetBuildTime())
 	//fmt.Print(delete_interface("[sss]"))
@@ -17,13 +17,16 @@ func main(){
 	/*		获取部分限定参数		*/
 	rjs := engine.RJSEngine{}
 	RunPoiontMode := flag.Bool("runmode",false,"If on Running Mode")
-
 	temp_file_max := flag.Int("opened_file_max",10,"The MAX number of OPENING FILES")
 	IfVersion := flag.Bool("v",false,"Show Version and something else about RJS engine.")
 	flag.Parse()
 	if *IfVersion{
 		//介绍RJS
 		ShowAboutEngine()
+		os.Exit(0)
+	}
+	if *WebDownload != ""{
+		InstallMoudle(*WebDownload)
 		os.Exit(0)
 	}
 	rjs.OPENED_FILE_MAX = *temp_file_max
@@ -56,5 +59,10 @@ func ShowAboutEngine(){
 	fmt.Println("This RJS engine build on :",version.BuildOS)
 	fmt.Println("Ruixue:https://rxues.site")
 	fmt.Println("If you want to join us.E-mail at admin@rxues.site")
+	fmt.Println("Welcome To Ruixue!")
 	return
+}
+func InstallMoudle(WebSite string){
+	//首先Get下文件
+
 }
