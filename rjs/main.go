@@ -60,6 +60,8 @@ func ShowAboutEngine(){
 	fmt.Println("Ruixue:https://rxues.site")
 	fmt.Println("If you want to join us.E-mail at admin@rxues.site")
 	fmt.Println("Welcome To Ruixue!")
+	fmt.Println("My Girfriend -- HSR...")
+	fmt.Println("My heart is full of you...")
 	return
 }
 func InstallMoudle(WebSite string){
