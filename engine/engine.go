@@ -661,3 +661,5 @@ func (this RJSEngine)CallFunc(FuncName string,data []interface{})interface{}{
 	return result
 	//result := this.Js.Call()
 }
+/*		欢迎来到瑞雪		*/
+/*			我们致力于创建最好的代码			*/
