@@ -32,7 +32,7 @@ var AJAX_OBJECT_LIST map[string]*AJAX_LIST
 var js *otto.Otto
 var listener_number = 0	//tcp
 var Ajax_listener_number = 0
-var listen_list pkg_stack.Stac
+var listen_list pkg_stack.Stack
 var error_ = func(err error){
 	fmt.Print(err)
 }

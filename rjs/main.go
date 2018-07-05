@@ -8,17 +8,36 @@ import(
 	"flag"
 	//"io"
 	"fmt"
+	"errors"
 	//"../c/build_about"
 )
 func main(){
 	if iss,_ := exists("RJS.ini");!iss{
-		os.Create("RJS.ini")
-		DefaultData := &goconfig.ConfigFile{}
+		//file,err := os.Create("RJS.ini")
+		//var err
+		file2, err := os.OpenFile("RJS.ini", os.O_RDWR|os.O_CREATE, 0766);
+		if err != nil {
+			fmt.Println(err);
+			os.Exit(0)
+		}
+		//fmt.Println(file2);
+		file2.Close();
+		//file.Close()
+		DefaultData,err := goconfig.LoadConfigFile("RJS.ini")
+		if err != nil{
+			fmt.Println(err)
+			os.Exit(0)
+		}
+
 		//DefaultData.SetSectionComments("Main","RunRJSServer",)
-		DefaultData.SetKeyComments("Main","RunRJSServer","yes")
-		DefaultData.SetKeyComments("Main","RJSServerPort","1225")
-		DefaultData.SetKeyComments("Main","RJSServerNeedLisence","no")
-		goconfig.SaveConfigFile(DefaultData,"RJS.ini")
+		DefaultData.SetValue("Main","RunRJSServer","yes")
+		DefaultData.SetValue("Main","RJSServerPort","1225")
+		DefaultData.SetValue("Main","RJSServerNeedLisence","no")
+		err = goconfig.SaveConfigFile(DefaultData,"RJS.ini")
+		if err != nil{
+			fmt.Println(err)
+			os.Exit(0)
+		}
 	}
 	//判断是否为加载RJS web库命令
 	WebDownload := flag.String("get","","If Download From Web")
@@ -90,7 +109,7 @@ func RJSListener(){
 		os.Exit(0)
 	}
 	Port := config.GetKeyComments("Main","RJSServerPort")
-
+	fmt.Println("RJS server is running")
 	netListen, err := net.Listen("tcp", "localhost:" + Port)
 	if err != nil{
 		fmt.Println(err)
