@@ -6,6 +6,9 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"io"
+	"github.com/robertkrimen/otto"
+	"fmt"
+	"os"
 )
 
 //生成32位md5字串
@@ -23,4 +26,40 @@ func UniqueId() string {
 		return ""
 	}
 	return GetMd5String(base64.URLEncoding.EncodeToString(b))
+}
+//Bind Functions
+func Init(engine *otto.Otto){
+	engine.Set("LoadMath",func(){
+		math,err := engine.Object("Math")
+		if err != nil{
+			fmt.Println(err)
+			OnStrictMode(engine)
+		}
+		math.Set("Fibonacci",func(call otto.FunctionCall)otto.Value{
+			number,err := call.Argument(0).ToInteger()
+			if err != nil{
+				fmt.Println(err)
+				OnStrictMode(engine)
+			}
+			for n := 3; n =< number;{
+
+			}
+		})
+	})
+}
+func OnStrictMode(this *otto.Otto){
+	IfStrictMode,err := this.Get("RJS_CONFIG_STRIT_MODE")
+	if err != nil{
+		fmt.Print("ERRO CONFIG.RJS_CONFIG_STRIT_MODE")
+		os.Exit(0)
+	}
+	confident,err :=  IfStrictMode.ToBoolean()
+	if err != nil{
+		fmt.Print("ERRO CONFIG.RJS_CONFIG_STRIT_MODE")
+		os.Exit(0)
+	}
+	if confident{
+		os.Exit(0)
+	}
+	return
 }

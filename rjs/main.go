@@ -8,7 +8,6 @@ import(
 	"flag"
 	//"io"
 	"fmt"
-	"errors"
 	//"../c/build_about"
 )
 func main(){
