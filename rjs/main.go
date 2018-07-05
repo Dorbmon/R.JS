@@ -122,6 +122,17 @@ func DealWithConn(conn net.Conn){
 	}
 	buffer := make([]byte, 2048)
 	Lisence := false
+	//加载RJS map
+	var RJSMap map[string]*struct{
+		Name string
+		Empty bool
+		engine *engine.RJSEngine
+	}
+	RJSMap = make(map[string]*struct{
+		Name string
+		Empty bool
+		engine *engine.RJSEngine
+	})
 	for {
 
 		n, err := conn.Read(buffer)
@@ -130,7 +141,7 @@ func DealWithConn(conn net.Conn){
 			fmt.Println(conn.RemoteAddr().String(), " connection error: ", err)
 			return
 		}
-		data := string(buffer[:n])
+		//data := string(buffer[:n])
 		//处理data
 		json,err := simplejson.NewJson(buffer[:n])
 		if err != nil{
@@ -161,7 +172,7 @@ func DealWithConn(conn net.Conn){
 			}
 			if NeedLisence {
 				//需要授权
-				if !Lisence(Name, About) {
+				if !AskForLisence(Name, About) {
 					conn.Write([]byte(`
 						type:'Respond',
 						data:"ERROR LISENCE.User didn't agree."
@@ -171,19 +182,66 @@ func DealWithConn(conn net.Conn){
 			}
 			//授权成功
 			Lisence = true
+			//创建虚拟目录
+			os.Mkdir(Name,os.ModePerm)
 
 		case "load":
 			if !Lisence{
 				//未授权
 				conn.Write([]byte(`
 						type:'Respond',
-						data:"ERROR LISENCE.You don't have lisence'."
+						data:"ERROR LISENCE.You don't have lisence."
 				`))
 				break
 			}
-			//加载到RJS引擎中
-			
 
+			//加载到RJS引擎中
+			//为该应用创建RJS引擎实例
+			//获取信息
+			RJSName,err := json.Get("RJSName").String()
+			if err != nil{
+				conn.Write([]byte(`
+						type:'Respond',
+						data:"ERROR DATA.You lost 'RJSName'."
+				`))
+				continue
+			}
+			if !RJSMap[RJSName].Empty{
+				//已经存在实例
+				conn.Write([]byte(`
+						type:'Respond',
+						data:"ERROR DATA.There is a RJSEngine called:'` + RJSName + "'"))
+				continue
+			}
+			RJSMap[RJSName].Empty = false
+			RJSMap[RJSName].engine = &engine.RJSEngine{}
+			RJSMap[RJSName].engine.Init()	//初始化RJS引擎
+			RJSMap[RJSName].Name = RJSName
+			//引擎完成配置
+			//载入程序
+			Program,err := json.Get("Program").String()
+			if err != nil{
+				conn.Write([]byte(`
+						type:'Respond',
+						data:"ERROR DATA,You lost The Program For RJSEngine"
+				`))
+				continue
+			}
+			value,err := RJSMap[RJSName].engine.Js.Run(Program)
+			if err != nil{
+				//代码有错
+				conn.Write([]byte(`
+						type:'Respond',
+						result:'error'
+						data:'` + err.Error() + "'"))
+				continue
+			}
+			conn.Write([]byte(`
+						type:'Respond',
+						result:'ok'
+						data:'` + value.String() + "'"))
+			continue
+		case "":
 		default:
 			//Log(conn.RemoteAddr().String(), "receive data string:\n", string(buffer[:n]))
 	}
@@ -196,6 +254,6 @@ func exists(path string) (bool, error) {
 	if os.IsNotExist(err) { return false, nil }
 	return true, err
 }
-func Lisence(Name string,About string)bool{
+func AskForLisence(Name string,About string)bool{
 	return true
 }
