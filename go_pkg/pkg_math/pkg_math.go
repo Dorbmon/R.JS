@@ -41,9 +41,18 @@ func Init(engine *otto.Otto){
 				fmt.Println(err)
 				OnStrictMode(engine)
 			}
-			for n := 3; n =< number;{
-
+			last := 1
+			llast := 1
+			now := 0
+			nm := int(number)
+			for n := 3; n <= nm;{
+				now := last + llast
+				llast = last
+				last = now
+				continue
 			}
+			value,_ := otto.ToValue(now)
+			return value
 		})
 	})
 }

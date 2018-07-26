@@ -30,6 +30,7 @@ import (
 	//"../go_pkg/pkg_ffi"
 	//"log"
 
+	"net/http"
 )
 //runtime.GOMAXPROCS(runtime)
 /*
@@ -76,7 +77,6 @@ func GetJs()*otto.Otto{
 func OneLineRun(line string)(value otto.Value,err error){
 	return js.Run(line)
 }
-
 func Run(file *string){
 		JavaScript,read_err := ReadAll(*file)
 		if read_err != nil{
@@ -109,6 +109,7 @@ func Run(file *string){
 }
 func init_Java_Script_Const(vm *otto.Otto){
 	/*		文件权限相关底层常量		*/
+	vm.Set("IfRJSRunTime",true)
 	vm.Set("IO_ReadWrite",os.O_RDWR)
 	//syscall.O_RDWR
 	vm.Set("IO_ReadOnly",os.O_RDONLY)
@@ -254,7 +255,7 @@ func (this *RJSEngine)Init(){
 	pkg_network.Swap_Data_From_Main(js)
 	//include_network.
 	init_Java_Script_Const(js)
-	js.Set("output", func(call otto.FunctionCall) otto.Value {
+	js.Set("output", func(call otto.FunctionCall){
 		//js.Call(call.Argument(0).String(),"")
 		n := 0
 		for {
@@ -266,7 +267,6 @@ func (this *RJSEngine)Init(){
 			fmt.Print(value)
 		}
 		//return otto.Value{temp,"output"}
-		return otto.Value{}
 		//return otto.Value{}
 	})
 	if this.RunPoiontMode{
@@ -508,6 +508,52 @@ func (this *RJSEngine)Init(){
 		}
 		return otto.Value{}
 	})
+	js.Set("LoadMoulde",func(call otto.FunctionCall)otto.Value{	//第一个参数为是否忽略错误执行,第二个参数为是否为临时下载
+		//Address := call.Argument(0).String()
+		if (!check_data(call,0) || ! check_data(call,1) || ! check_data(call,2)){
+			value,_ := otto.ToValue("ERROR DATA for LoadMould on " + call.CallerLocation())
+			return value
+		}
+		if (!call.ArgumentList[0].IsBoolean()){
+			value,_ := otto.ToValue("ERROR DATA Type for LoadMould on " + call.CallerLocation())
+			return value
+		}
+		if (!call.ArgumentList[1].IsBoolean()){
+			value,_ := otto.ToValue("ERROR DATA Type for LoadMould on " + call.CallerLocation())
+			return value
+		}
+		IfIgnoreMistake,_ := call.ArgumentList[0].ToBoolean()
+		IfTempMode,_ := call.ArgumentList[1].ToBoolean()
+		var err error = nil
+		if IfIgnoreMistake {
+			n := 3
+			for {
+				value := call.Argument(n)
+				if !value.IsDefined() {
+					break
+				}
+				n++
+				Rdata := value.String()
+				this.LoadMoulde(Rdata, IfTempMode)
+			}
+		}else{
+			n := 3
+			for {
+				value := call.Argument(n)
+				if !value.IsDefined() {
+					break
+				}
+				n++
+				Rdata := value.String()
+				err = this.LoadMoulde(Rdata, IfTempMode)
+				if err != nil{
+					break
+				}
+			}
+		}
+		value,_ := otto.ToValue(err)
+		return value
+	})
 	js.Set("include_c",func(call otto.FunctionCall) otto.Value{
 		//从系统目录下包含
 		if !check_data(call,1){
@@ -631,15 +677,134 @@ func (this RJSEngine)OnStrictMode(){
 type RJSEngineVersion struct{
 	Version float32
 	BuildOS string
+	message string
 }
 func Version()RJSEngineVersion{
 	version := RJSEngineVersion{}
 	version.Version = 0.1
 	BuildContext := build.Default
 	version.BuildOS = BuildContext.GOOS
+	version.message = `Ruixue Build This Version for everyone for free.`
 	//fmt.Print(BuildContext.GOARCH)
 	//build.
 	return version
+}
+func(this RJSEngine)LoadMoulde(Address string,tempMode bool)(error){
+	//The Address Mustn't have anything like 'http'
+	//本地寻找
+	Exists,_ := file_exists(Address)
+	if !Exists{
+		//进入Web模式
+		res,err := http.Get(Address)
+		if err != nil{
+			return err
+		}
+		if tempMode{
+			//No write
+			_,err = this.Js.Run(res.Body)
+			return err
+		}
+		//Write
+		//分离文件名
+		var data []byte
+		res.Body.Read(data)
+		position := strings.LastIndex(Address,"/")
+
+		if position == -1{
+			//直接写入文件
+			if is,_ := dir_exists(Address);is{
+				goto write
+			}
+			err = os.Mkdir(Address,os.ModePerm)
+			if err != nil{
+				return err
+			}
+			write:
+			if ex,_ := file_exists(Address + string(os.PathSeparator) + "index.rjs");ex{
+				//删除原有文件
+				err = os.Remove(Address + string(os.PathSeparator) + "index.rjs")
+				if err != nil{
+					return err
+				}
+			}
+			file,err := os.Create(Address + string(os.PathSeparator) + "index.rjs")
+			if err != nil{
+				return err
+			}
+			_ ,err = file.Write(data)
+			if err != nil{
+				return err
+			}
+			_,err = this.Js.Run(string(data))
+			return err
+		}
+		//os.MkdirAll(Address)
+		//have /
+		// Got Dir
+		Rdata := strings.Split(Address,"/")
+		l := len(Rdata)
+		FileName := Rdata[l-1]
+		var Dir string
+		for n := 0;n < (l - 1);n++{
+			Dir += Rdata[n]
+		}
+		if i,_ := dir_exists(Dir);i{
+			goto write2
+		}
+		err = os.MkdirAll(Dir,os.ModePerm)
+		if err != nil{
+			return err
+		}
+		write2:
+		//Write To File
+		if i,_ := file_exists(Dir + string(os.PathSeparator) + FileName);i{
+			err = os.Remove(Dir + string(os.PathSeparator) + FileName)
+			if err != nil{
+				return err
+			}
+		}
+		//Create File
+		file,err := os.Create(Dir + string(os.PathSeparator) + FileName)
+		if err != nil{
+			return err
+		}
+		_,err = file.Write(data)
+		return err
+	}
+	//读取
+	data,err := ReadAll(Address)
+	if err != nil{
+		return err
+	}
+	_,err = this.Js.Run(string(data))
+	if err != nil{
+		return err
+	}
+	return nil
+}
+func file_exists(path string) (bool, error) {
+	stat, err := os.Stat(path)
+	if os.IsNotExist(err) { return false, nil }
+	if err == nil {
+		if !stat.IsDir() {
+			return true, nil
+		} else {
+			return false,nil //It's a dir.
+		}
+	}
+	return true, err
+}
+func dir_exists(dir string)(bool,error){
+	stat, err := os.Stat(dir)
+	if os.IsNotExist(err) { return false, nil }
+	if err == nil {
+		if stat.IsDir() {
+			return true, nil
+		} else {
+			return false,nil //It's a dir.
+		}
+	}
+	return false,err
 }
 // These functions that are below are set for C++
 func (this RJSEngine)SetVar(VarName string,Value interface{})string{

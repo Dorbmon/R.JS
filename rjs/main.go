@@ -152,7 +152,6 @@ func DealWithConn(conn net.Conn){
 		engine *engine.RJSEngine
 	})
 	for {
-
 		n, err := conn.Read(buffer)
 
 		if err != nil {
