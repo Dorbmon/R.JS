@@ -1,7 +1,7 @@
 package pkg_os
 import (
 	"os/exec"
-	"github.com/robertkrimen/otto"
+	"../../otto"
 	"../pkg_stack"
 )
 var js *otto.Otto

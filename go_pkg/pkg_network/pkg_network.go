@@ -4,7 +4,7 @@ import(
 	"fmt"
 	"net"
 	//"math/rand"
-	"github.com/robertkrimen/otto"
+	"../../otto"
 	"../pkg_stack"
 	"net/url"
 	"net/http"

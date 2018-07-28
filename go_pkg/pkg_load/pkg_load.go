@@ -1,7 +1,7 @@
 package pkg_load
 
 import(
-	"github.com/robertkrimen/otto"
+	"../../otto"
 	//"github.com/achille-roussel/go-ffi"
 )
 type JSLoader struct{

@@ -1,7 +1,7 @@
 package pkg_stack
 import (
 	"errors"
-	otto "github.com/robertkrimen/otto"
+	otto "../../otto"
 	"fmt"
 	"os"
 )

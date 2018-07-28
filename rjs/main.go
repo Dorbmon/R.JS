@@ -73,7 +73,7 @@ func main(){
 		fmt.Print("ERROR:",read_err)
 		os.Exit(0)
 	}
-	value,err := rjs.Js.Run(JavaScript)
+	value,err := rjs.Js.Run(string(JavaScript))
 	if value.IsDefined(){
 		fmt.Println(value)
 	}

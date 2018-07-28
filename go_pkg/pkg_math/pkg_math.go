@@ -6,7 +6,7 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"io"
-	"github.com/robertkrimen/otto"
+	"../../otto"
 	"fmt"
 	"os"
 )
