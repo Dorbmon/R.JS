@@ -313,7 +313,6 @@ func (this *RJSEngine)Init(){
 		value,_ := otto.ToValue(runtime.NumCPU())
 		return value
 	})
-	//js.Set("")
 	js.Set("IO_fopen",func(call otto.FunctionCall) otto.Value{
 		if !check_data(call,2){
 			error_("ERROR DATA FOR fopen")
@@ -508,7 +507,7 @@ func (this *RJSEngine)Init(){
 		}
 		return otto.Value{}
 	})
-	js.Set("LoadMoulde",func(call otto.FunctionCall)otto.Value{	//第一个参数为是否忽略错误执行,第二个参数为是否为临时下载
+	js.Set("LoadModule",func(call otto.FunctionCall)otto.Value{	//第一个参数为是否忽略错误执行,第二个参数为是否为临时下载
 		//Address := call.Argument(0).String()
 		if (!check_data(call,0) || ! check_data(call,1) || ! check_data(call,2)){
 			value,_ := otto.ToValue("ERROR DATA for LoadMould on " + call.CallerLocation())
@@ -534,7 +533,7 @@ func (this *RJSEngine)Init(){
 				}
 				n++
 				Rdata := value.String()
-				this.LoadMoulde(Rdata, IfTempMode)
+				this.LoadModule(Rdata, IfTempMode)
 			}
 		}else{
 			n := 3
@@ -545,7 +544,7 @@ func (this *RJSEngine)Init(){
 				}
 				n++
 				Rdata := value.String()
-				err = this.LoadMoulde(Rdata, IfTempMode)
+				err = this.LoadModule(Rdata, IfTempMode)
 				if err != nil{
 					break
 				}
@@ -689,7 +688,7 @@ func Version()RJSEngineVersion{
 	//build.
 	return version
 }
-func(this RJSEngine)LoadMoulde(Address string,tempMode bool)(error){
+func(this RJSEngine)LoadModule(Address string,tempMode bool)(error){
 	//The Address Mustn't have anything like 'http'
 	//本地寻找
 	Exists,_ := file_exists(Address)
@@ -803,8 +802,8 @@ func dir_exists(dir string)(bool,error){
 		} else {
 			return false,nil //It's a dir.
 		}
-	}
-	return false,err
+}
+return false,err
 }
 // These functions that are below are set for C++
 func (this RJSEngine)SetVar(VarName string,Value interface{})string{
