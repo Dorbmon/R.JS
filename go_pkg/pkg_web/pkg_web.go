@@ -5,6 +5,7 @@ import(
 	"fmt"
 	"os"
 	"net/http"
+	"net/url"
 )
 
 type RjsWebMoudle struct{
@@ -13,25 +14,31 @@ type RjsWebMoudle struct{
 func (this RjsWebMoudle)Init(js *otto.Otto){
 	this.js = js
 	js.Set("WebServer",func()*otto.Object{
-		obj,err := js.Object("{}")
+		obj,err := js.Object("({})")
 		if err != nil{
 			fmt.Println(err)
 			os.Exit(0)
 		}
-		obj.Set("Band",func(call otto.FunctionCall)otto.Value{
+		obj.Set("Bind",func(call otto.FunctionCall)otto.Value{
 			//设置回调函数	绑定
 			if call.Argument(1).IsUndefined(){
-				fmt.Println("ERROR.When call WebServer.Band(). on:",call.CallerLocation())
+				fmt.Println("ERROR.When call WebServer.Bind(). on:",call.CallerLocation())
 				OnStrictMode(js)
 			}
-			BandAddress := call.Argument(0).String()
-			BandFunction := call.Argument(1)
-			http.HandleFunc(BandAddress,func(w http.ResponseWriter,r *http.Request){
-				Writer,_ := js.Object("Writer")
+			BindAddress := call.Argument(0).String()
+			BindFunction := call.Argument(1)
+			//fmt.Println("Address:",BindAddress)
+			//defer fmt.Println("Address:",BindAddress," Has been defined.")
+			http.HandleFunc(BindAddress,func(w http.ResponseWriter,r *http.Request){
+				//fmt.Println("sss")
+				Writer,_ := js.Object("({})")
+				queryGetForm, err := url.ParseQuery(r.URL.RawQuery)	//只有Get
+				if err == nil && len(queryGetForm["id"]) > 0 {
+					fmt.Fprintln(w, queryGetForm["id"][0])
+				}
 				Writer.Set("Write",func(call otto.FunctionCall)otto.Value{
 					data := []byte(call.Argument(0).String())
 					i,err := w.Write(data)
-
 					if err != nil{
 						result,_ := otto.ToValue(err)
 						return result
@@ -39,27 +46,38 @@ func (this RjsWebMoudle)Init(js *otto.Otto){
 					result,_ := otto.ToValue(i)
 					return result
 				})
-				Request,_ := js.Object("Request")
+				Request,_ := js.Object("({})")
 				Request.Set("GetForm",func(call otto.FunctionCall)otto.Value{
 					if call.Argument(0).IsUndefined(){
 						fmt.Println("ERROR.When call Request.GetForm(). on:",call.CallerLocation())
 						OnStrictMode(js)
 					}
 					key := call.Argument(0).String()
-					value,_ := otto.ToValue(r.Form.Get(key))
+					value,err := otto.ToValue(r.Form.Get(key))
+					if err != nil{
+						fmt.Println(err)
+						return otto.FalseValue()
+					}
+					//fmt.Println(r.URL.String())
+					fmt.Println(r.Form.Encode())
+
 					return value
 				})
 				Request.Set("RequestUrl",r.URL.Path)
+				Request.Set("RemoteAddr",r.RemoteAddr)
+				Request.Set("Host",r.Host)
 				Request.Set("GetPostForm",func(call otto.FunctionCall)otto.Value{
 					if call.Argument(0).IsUndefined(){
 						fmt.Println("ERROR.When call Request.GetForm(). on:",call.CallerLocation())
 						OnStrictMode(js)
 					}
 					key := call.Argument(0).String()
-					value,_ := otto.ToValue(r.PostForm.Get(key))
+					//value,_ := otto.ToValue(r.PostForm.Get(key))
+					valuet := queryGetForm.Get(key)
+					value,_ := otto.ToValue(valuet)
 					return value
 				})
-				BandFunction.Call(BandFunction,Writer)
+				BindFunction.Call(BindFunction,Writer,Request)
 			})
 			return otto.TrueValue()
 		})

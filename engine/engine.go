@@ -30,6 +30,7 @@ import (
 	"../go_pkg/pkg_os"
 	"../go_pkg/pkg_secret"
 	"../go_pkg/pkg_stack"
+	"../go_pkg/pkg_web"
 	//"../go_pkg/pkg_ffi"
 	//"log"
 
@@ -256,6 +257,7 @@ type RJSEngine struct {
 	//下列为库
 	Stack_ pkg_stack.JS_StackEngine
 	Load_  pkg_load.JSLoader
+	Web pkg_web.RjsWebMoudle
 	//FfiSystem pkg_ffi.FfiSystem
 }
 
@@ -267,6 +269,7 @@ func (this *RJSEngine) Init() {
 	load_outside_progarm(js, this) //加载库
 	/*	init Including Setting	*/
 	pkg_network.Swap_Data_From_Main(js)
+	this.Web.Init(this.Js)
 	//include_network.
 	init_Java_Script_Const(js)
 	js.SetFPSFunction(func(){
@@ -301,6 +304,7 @@ func (this *RJSEngine) Init() {
 	}
 	{
 		/*		IO部分		*/
+		//js.Set("")
 		js.Set("call", func(call otto.Value) {
 			//call.Argument(0).Call()
 			//sjs.Eval(call.Argument(0))
