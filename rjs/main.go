@@ -260,7 +260,31 @@ func DealWithConn(conn net.Conn){
 						result:'ok'
 						data:'` + value.String() + "'"))
 			continue
-		case "":
+		case "GetVar" :
+			//Get Var
+			varname,err := json.Get("varname").String()
+			if err != nil{
+				//代码有错
+				conn.Write([]byte(`
+						type:'Respond',
+						result:'error'
+						data:'` + err.Error() + "'"))
+				continue
+			}
+			value,err := engine.GetJs().Get(varname)
+			if err != nil{
+				//变量有错
+				conn.Write([]byte(`
+						type:'Respond',
+						result:'Novar'
+						data:'` + err.Error() + "'"))
+				continue
+			}
+			conn.Write([]byte(`
+						type:'Respond',
+						result:'ok'
+						data:'` + value.String() + "'"))
+			continue
 		default:
 			//Log(conn.RemoteAddr().String(), "receive data string:\n", string(buffer[:n]))
 	}
