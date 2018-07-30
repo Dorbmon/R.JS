@@ -2,8 +2,6 @@ package engine
 /*		欢迎来到瑞雪		*/
 /*			我们致力于创建最好的代码			*/
 
-import "C"
-
 import (
 	"fmt"
 	"../otto"
