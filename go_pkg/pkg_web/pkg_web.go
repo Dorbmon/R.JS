@@ -1,7 +1,7 @@
 package pkg_web
 
 import(
-	"../../otto"
+	"github.com/Dorbmon/otto"
 	"fmt"
 	"os"
 	"net/http"

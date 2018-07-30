@@ -4,7 +4,7 @@ package engine
 
 import (
 	"fmt"
-	"../otto"
+	"github.com/Dorbmon/otto"
 	//"flag"
 	"io/ioutil"
 	"os"

@@ -1,7 +1,7 @@
 package pkg_channel
 import (
 	"fmt"
-	"github.com/robertkrimen/otto"
+	"github.com/Dorbmon/otto"
 	"os"
 	"../pkg_list"
 )

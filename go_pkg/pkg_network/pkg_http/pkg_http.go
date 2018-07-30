@@ -3,7 +3,7 @@ package pkg_http
 //HTTP子包
 //瑞雪Dorbmon
 import(
-	"github.com/robertkrimen/otto"
+	"github.com/Dorbmon/otto"
 	"net/http"
 	"fmt"
 	"os"

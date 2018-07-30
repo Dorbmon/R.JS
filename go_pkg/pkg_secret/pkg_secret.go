@@ -2,7 +2,7 @@ package pkg_secret
 
 import (
 	"fmt"
-	"../../otto"
+	"github.com/Dorbmon/otto"
 )
 var js *otto.Otto
 func SwapData(engine *otto.Otto){
