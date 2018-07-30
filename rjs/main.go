@@ -1,4 +1,5 @@
 package main
+import "C"
 import(
 	"../engine"
 	"github.com/bitly/go-simplejson"
@@ -10,6 +11,7 @@ import(
 	"fmt"
 	//"../c/build_about"
 )
+
 func main(){
 	if iss,_ := exists("RJS.ini");!iss{
 		//file,err := os.Create("RJS.ini")

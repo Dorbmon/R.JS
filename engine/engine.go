@@ -1,6 +1,9 @@
 package engine
 /*		欢迎来到瑞雪		*/
 /*			我们致力于创建最好的代码			*/
+
+import "C"
+
 import (
 	"fmt"
 	"../otto"
@@ -61,6 +64,12 @@ import (
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
          佛祖保佑       永无BUG
 */
+func main(){
+
+}
+func HHHH(){
+	fmt.Println("sss")
+}
 var opened_file_map map[int]opened_file //储存打开的文件
 type opened_file struct {
 	File     *os.File
@@ -91,6 +100,7 @@ func Run(file *string) {
 		fmt.Print("ERROR:", read_err)
 		os.Exit(0)
 	}
+
 	//include_network.
 	//优先在当前目录搜索该文件
 	//fmt.Print(golang_path + THE_THING_BETWING_DIR + *file)
@@ -115,6 +125,7 @@ func Run(file *string) {
 	}
 	//fmt.Print(JavaScript)
 }
+
 func init_Java_Script_Const(vm *otto.Otto) {
 	/*		文件权限相关底层常量		*/
 	vm.Set("IfRJSRunTime", true)
