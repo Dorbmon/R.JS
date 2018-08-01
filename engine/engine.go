@@ -62,12 +62,6 @@ import (
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
          佛祖保佑       永无BUG
 */
-func main(){
-
-}
-func HHHH(){
-	fmt.Println("sss")
-}
 var opened_file_map map[int]opened_file //储存打开的文件
 type opened_file struct {
 	File     *os.File
@@ -285,6 +279,10 @@ func (this *RJSEngine) Init() {
 		//Do Nothing...
 
 	})//防止野指针
+	js.Set("A",func(call otto.FunctionCall)otto.Value{
+		//fmt.Println(call.Argument(0).)
+		return otto.TrueValue()
+	})
 	js.Set("瑞雪",func(){
 		fmt.Println("Ruixue is a really strong team.")
 		fmt.Println("We try to build everything.")

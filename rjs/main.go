@@ -1,5 +1,4 @@
 package main
-import "C"
 import(
 	"../engine"
 	"github.com/bitly/go-simplejson"
