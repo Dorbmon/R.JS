@@ -32,6 +32,7 @@ import (
 	"../go_pkg/pkg_secret"
 	"../go_pkg/pkg_stack"
 	"../go_pkg/pkg_web"
+	"../go_pkg/pkg_thread"
 	//"../go_pkg/pkg_ffi"
 	//"log"
 
@@ -261,6 +262,7 @@ type RJSEngine struct {
 	Stack_ pkg_stack.JS_StackEngine
 	Load_  pkg_load.JSLoader
 	Web pkg_web.RjsWebMoudle
+	Threads pkg_thread.Pkg_thread
 	//FfiSystem pkg_ffi.FfiSystem
 }
 
@@ -273,6 +275,7 @@ func (this *RJSEngine) Init() {
 	/*	init Including Setting	*/
 	pkg_network.Swap_Data_From_Main(js)
 	this.Web.Init(this.Js)
+	this.Threads.SwapJS(this.Js)
 	//include_network.
 	init_Java_Script_Const(js)
 	js.SetFPSFunction(func(){
@@ -692,8 +695,6 @@ func (this *RJSEngine) Init() {
 				this.OnStrictMode()
 				return otto.FalseValue()
 			}
-			fmt.Println("Wait ",time1)
-
 			//time.After(time.Minute)
 			time.Sleep(time.Duration(time1))
 			//time.Sleep(time.Minute)
@@ -702,6 +703,9 @@ func (this *RJSEngine) Init() {
 		})
 		JsRuntime.Set("LockOSThread",func(call otto.FunctionCall){
 			runtime.LockOSThread()
+		})
+		JsRuntime.Set("Gosched",func(){
+			runtime.Gosched()
 		})
 		js.Set("runtime", JsRuntime)
 	}

@@ -65,7 +65,7 @@ func (this *Pkg_http)Init(js *otto.Otto){
 		}
 		this.BandFunctions[HttpName].BandFunctions[Address] = func(w http.ResponseWriter,r *http.Request){
 			//调用回调函数，传递数据
-			obj,_ := this.engine.Object("CallBack_" + HttpName)
+			obj,_ := this.engine.Object("({})")
 			obj.Set("url",r.URL.Path)
 			obj.Set("method",r.Method)
 			obj.Set("get",func(call otto.FunctionCall)otto.Value{
