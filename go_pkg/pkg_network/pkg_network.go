@@ -5,7 +5,7 @@ import(
 	"net"
 	//"math/rand"
 	"github.com/Dorbmon/otto"
-	"../pkg_stack"
+	"github.com/Dorbmon/R.JS/go_pkg/pkg_stack"
 	"net/url"
 	"net/http"
 	//"io/ioutil"

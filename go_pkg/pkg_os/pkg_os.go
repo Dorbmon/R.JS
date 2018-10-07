@@ -2,7 +2,7 @@ package pkg_os
 import (
 	"os/exec"
 	"github.com/Dorbmon/otto"
-	"../pkg_stack"
+	"github.com/Dorbmon/R.JS/go_pkg/pkg_stack"
 )
 var js *otto.Otto
 var exec_stack = pkg_stack.New()

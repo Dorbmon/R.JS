@@ -25,15 +25,15 @@ import (
 
 //此处为RJS库
 import (
-	"../go_pkg/pkg_load"
-	"../go_pkg/pkg_gtk"
-	"../go_pkg/pkg_math"
-	"../go_pkg/pkg_network"
-	"../go_pkg/pkg_os"
-	"../go_pkg/pkg_secret"
-	"../go_pkg/pkg_stack"
-	"../go_pkg/pkg_web"
-	"../go_pkg/pkg_thread"
+	"github.com/Dorbmon/R.JS/go_pkg/pkg_load"
+	//"github.com/Dorbmon/R.JS/go_pkg/pkg_gtk"
+	"github.com/Dorbmon/R.JS/go_pkg/pkg_math"
+	"github.com/Dorbmon/R.JS/go_pkg/pkg_network"
+	"github.com/Dorbmon/R.JS/go_pkg/pkg_os"
+	"github.com/Dorbmon/R.JS/go_pkg/pkg_secret"
+	"github.com/Dorbmon/R.JS/go_pkg/pkg_stack"
+	"github.com/Dorbmon/R.JS/go_pkg/pkg_web"
+	"github.com/Dorbmon/R.JS/go_pkg/pkg_thread"
 	//"../go_pkg/pkg_ffi"
 	//"log"
 
@@ -264,7 +264,7 @@ type RJSEngine struct {
 	Load_  pkg_load.JSLoader
 	Web pkg_web.RjsWebMoudle
 	Threads pkg_thread.Pkg_thread
-	GTK pkg_gtk.Pkg_gtk
+	//GTK pkg_gtk.Pkg_gtk
 	//FfiSystem pkg_ffi.FfiSystem
 }
 
@@ -278,7 +278,7 @@ func (this *RJSEngine) Init() {
 	pkg_network.Swap_Data_From_Main(js)
 	this.Web.Init(this.Js)
 	this.Threads.SwapJS(this.Js)
-	this.GTK.SwapJS(this.Js)
+	//this.GTK.SwapJS(this.Js)
 	//include_network.
 	init_Java_Script_Const(js)
 	js.SetFPSFunction(func(){
