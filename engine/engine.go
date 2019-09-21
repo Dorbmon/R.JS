@@ -283,7 +283,6 @@ func (this *RJSEngine) Init() {
 	init_Java_Script_Const(js)
 	js.SetFPSFunction(func(){
 		//Do Nothing...
-
 	})//防止野指针
 	js.Set("A",func(call otto.FunctionCall)otto.Value{
 		//fmt.Println(call.Argument(0).)

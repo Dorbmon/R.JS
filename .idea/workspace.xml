@@ -3,206 +3,27 @@
   <component name="ChangeListManager">
     <list default="true" id="5152615f-d9ac-49e3-94df-322f04dfbd01" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/engine/engine.go" beforeDir="false" afterPath="$PROJECT_DIR$/engine/engine.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/go_pkg/pkg_gtk/pkg_gtk.go" beforeDir="false" afterPath="$PROJECT_DIR$/go_pkg/pkg_gtk/pkg_gtk.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/rjs/t.js" beforeDir="false" afterPath="$PROJECT_DIR$/rjs/t.js" afterDir="false" />
     </list>
-    <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="FUSProjectUsageTrigger">
-    <session id="1527640658">
-      <usages-collector id="statistics.lifecycle.project">
-        <counts>
-          <entry key="project.closed" value="2" />
-          <entry key="project.open.time.10" value="1" />
-          <entry key="project.open.time.12" value="1" />
-          <entry key="project.open.time.13" value="1" />
-          <entry key="project.open.time.4" value="1" />
-          <entry key="project.opened" value="4" />
-        </counts>
-      </usages-collector>
-      <usages-collector id="statistics.file.extensions.open">
-        <counts>
-          <entry key="go" value="7" />
-        </counts>
-      </usages-collector>
-      <usages-collector id="statistics.file.types.open">
-        <counts>
-          <entry key="Go" value="7" />
-        </counts>
-      </usages-collector>
-      <usages-collector id="statistics.file.extensions.edit">
-        <counts>
-          <entry key="go" value="10108" />
-        </counts>
-      </usages-collector>
-      <usages-collector id="statistics.file.types.edit">
-        <counts>
-          <entry key="Go" value="10108" />
-        </counts>
-      </usages-collector>
-    </session>
-  </component>
-  <component name="FileEditorManager">
-    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/go_pkg/pkg_gtk/pkg_gtk.go">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="266">
-              <caret line="14" lean-forward="true" selection-start-line="14" selection-end-line="14" />
-              <folding>
-                <element signature="e#17#161#0" expanded="true" />
-                <element signature="e#336#3726#0" />
-                <element signature="e#3788#6631#0" />
-                <element signature="e#6690#8843#0" />
-                <element signature="e#8886#11327#0" />
-                <element signature="e#11364#13630#0" />
-                <element signature="e#13690#14752#0" />
-                <element signature="e#14790#17660#0" />
-                <element signature="e#17697#20196#0" />
-                <element signature="e#20254#20693#0" />
-                <element signature="e#20720#20741#0" />
-                <element signature="e#20767#20784#0" />
-                <element signature="e#281#492#0" />
-                <element signature="n#!!block;n#IfGTK#0" />
-                <element signature="n#!!block;n#IfGDK#0" />
-                <element signature="n#!!block;n#GetArgumentNumber#0" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$USER_HOME$/GOPATH/src/github.com/Dorbmon/otto/value.go">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="841">
-              <caret line="768" column="5" selection-start-line="768" selection-start-column="5" selection-end-line="768" selection-end-column="5" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$USER_HOME$/GOPATH/src/github.com/mattn/go-gtk/gtk/gtk.go">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="466">
-              <caret line="8557" column="12" selection-start-line="8557" selection-start-column="5" selection-end-line="8557" selection-end-column="12" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/engine/engine.go">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-3211">
-              <caret line="72" selection-start-line="72" selection-end-line="72" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/go_pkg/pkg_load/pkg_load.go">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="57">
-              <caret line="3" column="29" selection-start-line="3" selection-start-column="29" selection-end-line="3" selection-end-column="29" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-    </leaf>
-  </component>
-  <component name="GOROOT" path="/usr/lib/go-1.10" />
+  <component name="GOROOT" path="C:\Go" />
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="IdeDocumentHistory">
-    <option name="CHANGED_PATHS">
-      <list>
-        <option value="$PROJECT_DIR$/engine/engine.go" />
-        <option value="$PROJECT_DIR$/go_pkg/pkg_load/pkg_load.go" />
-        <option value="$PROJECT_DIR$/go_pkg/pkg_gtk/pkg_gtk.go" />
-      </list>
-    </option>
-  </component>
-  <component name="JsBuildToolGruntFileManager" detection-done="true" sorting="DEFINITION_ORDER" />
-  <component name="JsBuildToolPackageJson" detection-done="true" sorting="DEFINITION_ORDER" />
-  <component name="JsGulpfileManager">
-    <detection-done>true</detection-done>
-    <sorting>DEFINITION_ORDER</sorting>
-  </component>
-  <component name="ProjectFrameBounds" extendedState="6">
-    <option name="y" value="27" />
-    <option name="width" value="1390" />
-    <option name="height" value="999" />
-  </component>
-  <component name="ProjectView">
-    <navigator proportions="" version="1">
-      <foldersAlwaysOnTop value="true" />
-    </navigator>
-    <panes>
-      <pane id="Scope" />
-      <pane id="PackagesPane" />
-      <pane id="ProjectPane">
-        <subPane>
-          <expand>
-            <path>
-              <item name="R.JS" type="b2602c69:ProjectViewProjectNode" />
-              <item name="R.JS" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="R.JS" type="b2602c69:ProjectViewProjectNode" />
-              <item name="R.JS" type="462c0819:PsiDirectoryNode" />
-              <item name="engine" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="R.JS" type="b2602c69:ProjectViewProjectNode" />
-              <item name="R.JS" type="462c0819:PsiDirectoryNode" />
-              <item name="go_pkg" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="R.JS" type="b2602c69:ProjectViewProjectNode" />
-              <item name="R.JS" type="462c0819:PsiDirectoryNode" />
-              <item name="go_pkg" type="462c0819:PsiDirectoryNode" />
-              <item name="pkg_docker" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="R.JS" type="b2602c69:ProjectViewProjectNode" />
-              <item name="R.JS" type="462c0819:PsiDirectoryNode" />
-              <item name="go_pkg" type="462c0819:PsiDirectoryNode" />
-              <item name="pkg_ffi" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="R.JS" type="b2602c69:ProjectViewProjectNode" />
-              <item name="R.JS" type="462c0819:PsiDirectoryNode" />
-              <item name="go_pkg" type="462c0819:PsiDirectoryNode" />
-              <item name="pkg_gtk" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="R.JS" type="b2602c69:ProjectViewProjectNode" />
-              <item name="R.JS" type="462c0819:PsiDirectoryNode" />
-              <item name="go_pkg" type="462c0819:PsiDirectoryNode" />
-              <item name="pkg_load" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="R.JS" type="b2602c69:ProjectViewProjectNode" />
-              <item name="R.JS" type="462c0819:PsiDirectoryNode" />
-              <item name="rjs" type="462c0819:PsiDirectoryNode" />
-            </path>
-          </expand>
-          <select />
-        </subPane>
-      </pane>
-      <pane id="AndroidView" />
-    </panes>
-  </component>
+  <component name="ProjectId" id="1R8HY8AvdLU9mTHvqPxB7kBS8a7" />
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
     <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1533541702044" />
     <property name="go.gopath.indexing.explicitly.defined" value="true" />
+    <property name="go.import.settings.migrated" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="settings.editor.selected.configurable" value="editor.preferences.fonts.default" />
   </component>
   <component name="RunDashboard">
@@ -237,99 +58,19 @@
   <component name="TimeTrackingManager">
     <option name="totallyTimeSpent" value="13854000" />
   </component>
-  <component name="ToolWindowManager">
-    <frame x="0" y="27" width="1920" height="1053" extended-state="6" />
-    <editor active="true" />
-    <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.25772098" />
-      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
-      <window_info id="Image Layers" order="2" />
-      <window_info id="Designer" order="3" />
-      <window_info id="UI Designer" order="4" />
-      <window_info id="Capture Tool" order="5" />
-      <window_info id="Favorites" order="6" side_tool="true" />
-      <window_info anchor="bottom" id="Message" order="0" />
-      <window_info anchor="bottom" id="Find" order="1" />
-      <window_info anchor="bottom" id="Run" order="2" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
-      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
-      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
-      <window_info anchor="bottom" id="TODO" order="6" />
-      <window_info anchor="bottom" id="Database Changes" order="7" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Terminal" order="8" />
-      <window_info anchor="bottom" id="Event Log" order="9" side_tool="true" />
-      <window_info anchor="bottom" id="Version Control" order="10" />
-      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
-      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
-      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
-      <window_info anchor="right" id="Palette" order="3" />
-      <window_info anchor="right" id="Capture Analysis" order="4" />
-      <window_info anchor="right" id="Theme Preview" order="5" />
-      <window_info anchor="right" id="Palette&#9;" order="6" />
-      <window_info anchor="right" id="Database" order="7" />
-      <window_info anchor="right" id="Maven Projects" order="8" />
-    </layout>
-  </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="1" />
   </component>
-  <component name="VcsContentAnnotationSettings">
-    <option name="myLimit" value="2678400000" />
-  </component>
-  <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/go_pkg/pkg_load/pkg_load.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="57">
-          <caret line="3" column="29" selection-start-line="3" selection-start-column="29" selection-end-line="3" selection-end-column="29" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/engine/engine.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-3211">
-          <caret line="72" selection-start-line="72" selection-end-line="72" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/GOPATH/src/github.com/mattn/go-gtk/gtk/gtk.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="466">
-          <caret line="8557" column="12" selection-start-line="8557" selection-start-column="5" selection-end-line="8557" selection-end-column="12" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/GOPATH/src/github.com/Dorbmon/otto/value.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="841">
-          <caret line="768" column="5" selection-start-line="768" selection-start-column="5" selection-end-line="768" selection-end-column="5" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/go_pkg/pkg_gtk/pkg_gtk.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="266">
-          <caret line="14" lean-forward="true" selection-start-line="14" selection-end-line="14" />
-          <folding>
-            <element signature="e#17#161#0" expanded="true" />
-            <element signature="e#336#3726#0" />
-            <element signature="e#3788#6631#0" />
-            <element signature="e#6690#8843#0" />
-            <element signature="e#8886#11327#0" />
-            <element signature="e#11364#13630#0" />
-            <element signature="e#13690#14752#0" />
-            <element signature="e#14790#17660#0" />
-            <element signature="e#17697#20196#0" />
-            <element signature="e#20254#20693#0" />
-            <element signature="e#20720#20741#0" />
-            <element signature="e#20767#20784#0" />
-            <element signature="e#281#492#0" />
-            <element signature="n#!!block;n#IfGTK#0" />
-            <element signature="n#!!block;n#IfGDK#0" />
-            <element signature="n#!!block;n#GetArgumentNumber#0" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
   <component name="masterDetails">
     <states>

@@ -10,7 +10,6 @@ import (
 
 type Pkg_gtk struct{
 	js *otto.Otto
-
 }
 
 func(this Pkg_gtk)SwapJS(js *otto.Otto){
