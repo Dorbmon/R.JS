@@ -717,11 +717,10 @@ jump_step:
 func (this *RJSEngine) SetsandBoxMode(status bool, vmName string) (string, error) {
 	//是否启用沙盒模式。如果使用沙盒模式，任何操作不会在物理机上生效，如果关闭沙盒操作，之前的操作也不会生效
 	//建立虚拟目录系统.
-
 	if status { //开启
 		os.MkdirAll(golang_path+this.THE_THING_BETWING_DIR+"RJSVM", 0777) //创建虚拟根目录
 		//创建一个虚拟系统
-		err := os.Mkdir(golang_path+this.THE_THING_BETWING_DIR+"RJSVM"+this.THE_THING_BETWING_DIR+vmName, 0777)
+		err := os.Mkdir(golang_path+this.THE_THING_BETWING_DIR + "RJSVM" + this.THE_THING_BETWING_DIR+vmName, 0777)
 		if err != nil {
 			return "", errors.New("ERROR When create VM root path.")
 		}
@@ -748,12 +747,12 @@ func (this *RJSEngine) SetsandBoxMode(status bool, vmName string) (string, error
 func (this RJSEngine) OnStrictMode() {
 	IfStrictMode, err := this.Js.Get("RJS_CONFIG_STRIT_MODE")
 	if err != nil {
-		fmt.Print("ERRO CONFIG.RJS_CONFIG_STRIT_MODE")
+		fmt.Print("ERROR CONFIG.RJS_CONFIG_STRIT_MODE")
 		os.Exit(0)
 	}
 	confident, err := IfStrictMode.ToBoolean()
 	if err != nil {
-		fmt.Print("ERRO CONFIG.RJS_CONFIG_STRIT_MODE")
+		fmt.Print("ERROR CONFIG.RJS_CONFIG_STRIT_MODE")
 		os.Exit(0)
 	}
 	if confident {
@@ -774,8 +773,6 @@ func Version() RJSEngineVersion {
 	BuildContext := build.Default
 	version.BuildOS = BuildContext.GOOS
 	version.message = `Ruixue Build This Version for everyone for free.`
-	//fmt.Print(BuildContext.GOARCH)
-	//build.
 	return version
 }
 func (this RJSEngine) LoadModule(Address string, tempMode bool) error {
